@@ -24,6 +24,9 @@ if (5 <= 10) {
 
 10 == 10;
 10 != 9
+
+let foo <- 10
+foo <- 5
 `
 
 	test := []struct {
@@ -91,10 +94,17 @@ if (5 <= 10) {
 		{token.INT, "10"},
 		{token.DIFFERENT, "!="},
 		{token.INT, "9"},
+		{token.LET, "let"},
+		{token.IDENTIFICATION, "foo"},
+		{token.ASSIGN, "<-"},
+		{token.INT, "10"},
+		{token.IDENTIFICATION, "foo"},
+		{token.ASSIGN, "<-"},
+		{token.INT, "5"},
 		{token.EOF, ""},
 	}
 
-	l := InitLexer(input)
+	l := InitializeLexer(input)
 
 	for i, tt := range test {
 		tok := l.NextToken()

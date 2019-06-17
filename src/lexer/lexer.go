@@ -25,14 +25,6 @@ func isDigit(char byte) bool {
 	return '0' <= char && char <= '9'
 }
 
-// InitLexer :
-func InitLexer(input string) *Lexer {
-	l := &Lexer{input: input}
-	l.readChar()
-
-	return l
-}
-
 // peekChar :
 func (l *Lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
@@ -175,4 +167,12 @@ func (l *Lexer) NextToken() token.Token {
 	l.readChar()
 
 	return tok
+}
+
+// InitializeLexer :
+func InitializeLexer(input string) *Lexer {
+	l := &Lexer{input: input}
+	l.readChar()
+
+	return l
 }

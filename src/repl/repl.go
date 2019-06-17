@@ -9,6 +9,7 @@ import (
 	"../token"
 )
 
+// PROMPT :
 const PROMPT = ">> "
 
 // Start :
