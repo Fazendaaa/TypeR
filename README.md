@@ -15,6 +15,60 @@ Because it is a scripting language, R seeks to allow flexibility in the developm
 
 At the end of the day the idea is to write a "functional and typed R code" which will then spit out a normal code in R after all the checks are done, avoiding possible errors when the code is running in production.
 
+## How should it supposed to be?
+
+A small example of how language it's supposed to be one day:
+
+### Functions
+
+```
+add := Numeric a => a -> a -> a
+add <- function(x, y) x + y
+```
+
+The function header is similar to Haskell's -- read more at [functional Approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
+
+```
+multiply <- function(x, y) x * y
+# multiply := Numeric a => a -> a -> a
+```
+
+### Constants
+
+```
+result <- add(1, 2)
+# result is 3
+
+result <- 4
+# This will throw a compiler error, because result is a constant
+```
+
+If you want a "constant" to have its value changed, you must use the **let** keyword.
+
+```
+let result <- add(1, 2)
+# result is 3
+
+result <- 4
+# result is 4
+```
+
+### Point free notation
+
+```
+square <- function(x) x ^ 2
+
+addTwo <- function(x) x + 2
+
+result <- addTwo . square 2
+# result is 6
+```
+
+## Changes from R
+
+- Removing loops as **for**, **while**, **do ... while**;
+- ...
+
 ## Why
 
 The following topics try to clarify the choice of some design decisions.
@@ -35,7 +89,7 @@ The answer is simple, Go is:
 
 ### Functional approach
 
-The choice of just following the functional paradigm is simply a personal decision, since the main use of R for the project author is for mathematical scenarios. Having a background in Haskell, this has greatly influenced prioritizing such a decision.
+The choice of just following the functional paradigm is simply a personal decision, since the main use of R for the project author is for mathematical scenarios. Having a background in [Haskell](https://www.haskell.org/), this has greatly influenced prioritizing such a decision.
 
 Even if it does not have some of the practicalities of the functional paradigm like guards and pattern matching, it may be that if it is possible to emulate such designs they are added to the language.
 
@@ -72,3 +126,4 @@ As the idea is to actually leave this repository just for discussions related to
 ### Videos
 
 - [Inkscape Tutorial: Abstract Galaxy Logo](https://youtu.be/AgbsozDUyTs)
+- [Lexical Scanning in Go - Rob Pike](https://youtu.be/HxaD_trXwRE)
