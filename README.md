@@ -42,6 +42,8 @@ Even if it does not have some of the practicalities of the functional paradigm l
 ## TODO
 
 - Right now? Everything, nothing is current working
+- Create a linter for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
+- Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
 - Write another packet to transpile the TypeR code into [Julia](https://julialang.org/) code
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
 - Much more
