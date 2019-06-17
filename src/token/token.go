@@ -10,19 +10,32 @@ type Token struct {
 }
 
 const (
-	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
+	ILLEGAL = "ILLEGAL"
 
-	INDENTATION = "INDENTATION"
-	UNKNOWN     = "UNKNOWN"
-	INT         = "INT"
-	DOUBLE      = "DOUBLE"
+	INT            = "INT"
+	DOUBLE         = "DOUBLE"
+	UNKNOWN        = "UNKNOWN"
+	IDENTIFICATION = "IDENTIFICATION"
 
-	ASSIGN   = "<-"
-	ADD      = "+"
-	SUBTRACT = "-"
-	DIVIDE   = "/"
-	MULTIPLY = "*"
+	LET      = "LET"
+	FUNCTION = "FUNCTION"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
+
+	BANG               = "!"
+	EQUAL              = "="
+	PLUS               = "+"
+	MINUS              = "-"
+	SLASH              = "/"
+	ASTERISK           = "*"
+	LESS_THAN          = "<"
+	GREATER_THAN       = ">"
+	LESS_THAN_EQUAL    = "<="
+	GREATER_THAN_EQUAl = ">="
 
 	COMMA             = ","
 	SEMICOLON         = ";"
@@ -31,6 +44,29 @@ const (
 	LEFT_BRACE        = "{"
 	RIGHT_BRACE       = "}"
 
-	FUNCTION = "function"
-	LET      = "let"
+	ASSIGN       = "<-"
+	DOUBLE_EQUAL = "=="
+	DIFFERENT    = "!="
 )
+
+var keywords = map[string]TokenType{
+	"if":       IF,
+	"let":      LET,
+	"TRUE":     TRUE,
+	"else":     ELSE,
+	"FALSE":    FALSE,
+	"return":   RETURN,
+	"<-":       ASSIGN,
+	"function": FUNCTION,
+	"<":        LESS_THAN,
+	"<=":       LESS_THAN_EQUAL,
+}
+
+// LookupIdentifier :
+func LookupIdentifier(identification string) TokenType {
+	if tok, ok := keywords[identification]; ok {
+		return tok
+	}
+
+	return IDENTIFICATION
+}
