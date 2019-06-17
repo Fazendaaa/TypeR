@@ -25,8 +25,8 @@ func isDigit(char byte) bool {
 	return '0' <= char && char <= '9'
 }
 
-// initLexer :
-func initLexer(input string) *Lexer {
+// InitLexer :
+func InitLexer(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar()
 
@@ -144,6 +144,7 @@ func (l *Lexer) NextToken() token.Token {
 		if l.peekChar() == '=' {
 			tok = newPeekedToken(l, token.DOUBLE_EQUAL)
 		} else {
+			// In lists
 			tok = newToken(token.ILLEGAL, l.char)
 		}
 	case '!':
