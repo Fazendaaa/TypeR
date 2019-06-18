@@ -17,7 +17,9 @@ At the end of the day the idea is to write a "functional and typed R code" which
 
 ## How should it supposed to be?
 
-A small example of how language it's supposed to be one day:
+A small example of how language it's supposed to be one day.
+
+**WARNING**: these are just ideas, they may be possible or not.
 
 ### Functions
 
@@ -31,6 +33,14 @@ The function header is similar to Haskell's -- read more at [functional Approach
 ```
 multiply <- function(x, y) x * y
 # multiply := Numeric a => a -> a -> a
+```
+
+#### Throw notation
+If a function throws an error or a warning, the caller has to know that without having to look at the implementation of the function itself.
+
+```
+isURLValid("www.google.com")
+# isURLValid := String -> Bool; throws error, warning
 ```
 
 ### Constants
