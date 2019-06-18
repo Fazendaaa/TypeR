@@ -37,6 +37,12 @@ type LetStatement struct {
 	Value Expression
 }
 
+// ReturnStatement :
+type ReturnStatement struct {
+	Token       token.Token
+	ReturnValue Expression
+}
+
 // TokenLiteral :
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
@@ -57,4 +63,12 @@ func (ls *LetStatement) TokenLiteral() string {
 // TokenLiteral :
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
+}
+
+// statementNode :
+func (rs *ReturnStatement) statementNode() {}
+
+// TokenLiteral :
+func (rs *ReturnStatement) TokenLiteral() string {
+	return rs.Token.Literal
 }

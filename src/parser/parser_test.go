@@ -89,3 +89,33 @@ let foo <- 2345678
 		}
 	}
 }
+
+func TestReturnStatements(t *testing.T) {
+	input := `
+return 5;
+return 10
+return 1230987123
+`
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if 3 != len(program.Statements) {
+		t.Fatalf("program.Statements does not contain three statements, got=%d", len(program.Statements))
+	}
+
+	for _, statement := range program.Statements {
+		returnStatement, ok := statement.(*ast.ReturnStatement)
+
+		if !ok {
+			t.Errorf("statement not *ast.ReturnStatement, got=%T", statement)
+
+			continue
+		}
+		if "return" != returnStatement.TokenLiteral() {
+			t.Errorf("returnStatement.TokenLiteral() not 'return', got=%q", returnStatement.TokenLiteral())
+		}
+	}
+}

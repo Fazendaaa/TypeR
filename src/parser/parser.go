@@ -67,11 +67,24 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return statement
 }
 
+// parseReturnStatement :
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	statement := &ast.ReturnStatement{
+		Token: p.currentToken,
+	}
+
+	p.nextToken()
+
+	return statement
+}
+
 // parseStatement :
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
