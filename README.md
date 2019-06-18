@@ -70,6 +70,9 @@ result <- (+) 1 2
 # result is 3
 ```
 
+### Polymorphism
+> More on that later on
+
 ## Changes from R
 
 - Removing loops as **for**, **while**, **do ... while**;
@@ -133,3 +136,4 @@ As the idea is to actually leave this repository just for discussions related to
 
 - [Inkscape Tutorial: Abstract Galaxy Logo](https://youtu.be/AgbsozDUyTs)
 - [Lexical Scanning in Go - Rob Pike](https://youtu.be/HxaD_trXwRE)
+- [Sydney Golang Meetup - Rob Pike - Go 2 Draft Specifications](https://youtu.be/RIvL2ONhFBI)
