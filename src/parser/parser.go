@@ -151,9 +151,12 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
-	default:
-		// return p.parseExpressionStatement()
+	case token.INT:
 		return nil
+	case token.SEMICOLON:
+		return nil
+	default:
+		return p.parseExpressionStatement()
 	}
 }
 
