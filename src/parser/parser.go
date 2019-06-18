@@ -8,12 +8,42 @@ import (
 	"../token"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
 // Parser :
 type Parser struct {
-	l            *lexer.Lexer
+	l      *lexer.Lexer
+	errors []string
+
 	currentToken token.Token
 	peekToken    token.Token
-	errors       []string
+
+	prefixParserFunction map[token.TokenType]prefixParserFunction
+	infixParserFunction  map[token.TokenType]infixParserFunction
+}
+
+type (
+	prefixParserFunction func() ast.Expression
+	infixParserFunction  func(ast.Expression) ast.Expression
+)
+
+// registerPrefix :
+func (p *Parser) registerPrefix(tt token.TokenType, fn prefixParserFunction) {
+	p.prefixParserFunction[tt] = fn
+}
+
+// registerInfix :
+func (p *Parser) registerInfix(tt token.TokenType, fn infixParserFunction) {
+	p.infixParserFunction[tt] = fn
 }
 
 // nextToken :
@@ -78,6 +108,42 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return statement
 }
 
+// parseExpression :
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParserFunction[p.currentToken.Type]
+
+	if nil == prefix {
+		return nil
+	}
+
+	leftExpression := prefix()
+
+	return leftExpression
+}
+
+// parseExpressionStatement :
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	statement := &ast.ExpressionStatement{
+		Token: p.currentToken,
+	}
+
+	statement.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+// parseIdentifier :
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+}
+
 // parseStatement :
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
@@ -86,6 +152,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
+		// return p.parseExpressionStatement()
 		return nil
 	}
 }
@@ -129,6 +196,9 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	// Sets the current and peek tokens
 	p.nextToken()
 	p.nextToken()
+
+	p.prefixParserFunction = make(map[token.TokenType]prefixParserFunction)
+	p.registerPrefix(token.IDENTIFICATION, p.parseIdentifier)
 
 	return p
 }
