@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"../ast"
 	"../lexer"
 	"../token"
@@ -11,6 +13,7 @@ type Parser struct {
 	l            *lexer.Lexer
 	currentToken token.Token
 	peekToken    token.Token
+	errors       []string
 }
 
 // nextToken :
@@ -37,6 +40,8 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		return true
 	}
 
+	p.peekErrors(t)
+
 	return false
 }
 
@@ -59,11 +64,6 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: skipping the expressions until encounter a semicolon
-	for !p.currentTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
 	return statement
 }
 
@@ -77,12 +77,23 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
+// Errors :
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+// peekErrors :
+func (p *Parser) peekErrors(t token.TokenType) {
+	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, message)
+}
+
 // ParseProgram :
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
-	for p.currentToken.Type != token.EOF {
+	for !p.currentTokenIs(token.EOF) {
 		statement := p.parseStatement()
 
 		if nil != statement {
@@ -97,7 +108,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 // InitializeParser :
 func InitializeParser(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 
 	// Sets the current and peek tokens
 	p.nextToken()
