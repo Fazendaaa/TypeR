@@ -64,6 +64,12 @@ result <- addTwo . square 2
 # result is 6
 ```
 
+### Prefix operations
+```
+result <- (+) 1 2
+# result is 3
+```
+
 ## Changes from R
 
 - Removing loops as **for**, **while**, **do ... while**;
