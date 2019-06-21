@@ -19,7 +19,7 @@ At the end of the day the idea is to write a "functional and typed R code" which
 
 A small example of how language it's supposed to be one day.
 
-**WARNING**: these are just ideas, they may be possible or not implemented.
+**WARNING**: these are just ideas, they may be possible or not.
 
 ### Functions
 
