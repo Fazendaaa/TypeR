@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"../ast"
 	"../lexer"
@@ -94,6 +95,14 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
+	p.nextToken()
+
+	statement.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
 	return statement
 }
 
@@ -151,13 +160,29 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
-	case token.INT:
-		return nil
-	case token.SEMICOLON:
-		return nil
 	default:
 		return p.parseExpressionStatement()
 	}
+}
+
+// parseIntegerLiteral :
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	literal := &ast.IntegerLiteral{
+		Token: p.currentToken,
+	}
+
+	value, err := strconv.ParseInt(p.currentToken.Literal, 0, 64)
+
+	if nil != err {
+		message := fmt.Sprintf("could not parse '%q' as integer", p.currentToken.Literal)
+		p.errors = append(p.errors, message)
+
+		return nil
+	}
+
+	literal.Value = value
+
+	return literal
 }
 
 // Errors :
@@ -202,6 +227,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 
 	p.prefixParserFunction = make(map[token.TokenType]prefixParserFunction)
 	p.registerPrefix(token.IDENTIFICATION, p.parseIdentifier)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 
 	return p
 }
