@@ -28,7 +28,7 @@ add := Numeric a => a -> a -> a
 add <- function(x, y) x + y
 ```
 
-The function header is similar to Haskell's -- read more at [functional Approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
+The function header is similar to Haskell's -- read more at [functional approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
 
 ```
 multiply <- function(x, y) x * y
@@ -105,6 +105,11 @@ The answer is simple, Go is:
 - Its concurrent design helps when writing a compiler
 - ...
 
+#### And why not use toolings to as Lex and YACC?
+
+As you can see the processing of language grammar was done without the aid of known tools -- such as [Flex](https://en.wikipedia.org/wiki/Flex_lexical_analyser) and [YACC](https://en.wikipedia.org/wiki/Yacc) -- but this was due to the examples given in the material used in the [reference](#Reference); as the idea of this project is, besides making a new language by itself, to aid the learning of compilers; this approach had a more didactic aspect involved in it.
+
+This is not to say that in a future version, either by flexibility or performance, the tools already mentioned will not be used.
 
 ### Functional approach
 
