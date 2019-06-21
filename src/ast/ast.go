@@ -61,6 +61,13 @@ type IntegerLiteral struct {
 	Value int64
 }
 
+// PrefixExpression :
+type PrefixExpression struct {
+	Token    token.Token
+	Operator string
+	Right    Expression
+}
+
 // statementNode :
 func (i *Identifier) statementNode() {}
 
@@ -175,4 +182,24 @@ func (il *IntegerLiteral) TokenLiteral() string {
 // String :
 func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
+}
+
+// expressionNode :
+func (pe *PrefixExpression) expressionNode() {}
+
+// TokenLiteral :
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+
+// String :
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
 }
