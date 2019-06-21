@@ -120,11 +120,19 @@ Even if it does not have some of the practicalities of the functional paradigm l
 ## TODO
 
 - Right now? Everything, nothing is current working
-- Create a linter for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
-- Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
-- Write another packet to transpile the TypeR code into [Julia](https://julialang.org/) code
+- Tooling for TypeR:
+  - Create a linter for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
+  - Create a testing package
+  - Adding a support to [VS Code](https://code.visualstudio.com/)
+  - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority
+  - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
+  - Write another packet to transpile the TypeR code into [Julia](https://julialang.org/) code
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
 - Much more
+
+### Note
+
+It may take years and years for this project to be ready, but I intend to document each step and then release a series of books or blog posts in an easy and accessible way describing the process of implementing everything from the motive of language creation to the its outcome. This is rather a big project and the idea is that it brings good and great changes.
 
 ## Author
 
