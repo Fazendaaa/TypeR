@@ -76,6 +76,12 @@ type InfixExpression struct {
 	Right    Expression
 }
 
+// Boolean :
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
 // statementNode :
 func (i *Identifier) statementNode() {}
 
@@ -231,4 +237,17 @@ func (ie *InfixExpression) String() string {
 	out.WriteString(")")
 
 	return out.String()
+}
+
+// expressionNode :
+func (b *Boolean) expressionNode() {}
+
+// TokenLiteral :
+func (b *Boolean) TokenLiteral() string {
+	return b.Token.Literal
+}
+
+// String :
+func (b *Boolean) String() string {
+	return b.Token.Literal
 }

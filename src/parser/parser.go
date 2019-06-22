@@ -245,6 +245,15 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return expression
 }
 
+// currentPrecedence :
+func (p *Parser) currentPrecedence() int {
+	if p, ok := precedences[p.currentToken.Type]; ok {
+		return p
+	}
+
+	return LOWEST
+}
+
 // parseInfixExpression :
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expresion := &ast.InfixExpression{
@@ -262,13 +271,12 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return expresion
 }
 
-// currentPrecedence :
-func (p *Parser) currentPrecedence() int {
-	if p, ok := precedences[p.currentToken.Type]; ok {
-		return p
+// parseBoolean :
+func (p *Parser) parseBoolean() ast.Expression {
+	return &ast.Boolean{
+		Token: p.currentToken,
+		Value: p.currentTokenIs(token.TRUE),
 	}
-
-	return LOWEST
 }
 
 // peekErrors :
@@ -318,6 +326,8 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.TRUE, p.parseBoolean)
+	p.registerPrefix(token.FALSE, p.parseBoolean)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
