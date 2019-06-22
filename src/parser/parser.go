@@ -102,7 +102,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		Token: p.currentToken,
 	}
 
-	if !p.expectPeek(token.IDENTIFICATION) {
+	if !p.expectPeek(token.IDENTIFIER) {
 		return nil
 	}
 
@@ -314,7 +314,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.prefixParserFunction = make(map[token.TokenType]prefixParserFunction)
 	p.infixParserFunction = make(map[token.TokenType]infixParserFunction)
 
-	p.registerPrefix(token.IDENTIFICATION, p.parseIdentifier)
+	p.registerPrefix(token.IDENTIFIER, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)

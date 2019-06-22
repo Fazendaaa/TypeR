@@ -13,10 +13,10 @@ const (
 	EOF     = "EOF"
 	ILLEGAL = "ILLEGAL"
 
-	INT            = "INT"
-	DOUBLE         = "DOUBLE"
-	UNKNOWN        = "UNKNOWN"
-	IDENTIFICATION = "IDENTIFICATION"
+	INT        = "INT"
+	DOUBLE     = "DOUBLE"
+	UNKNOWN    = "UNKNOWN"
+	IDENTIFIER = "IDENTIFIER"
 
 	LET      = "LET"
 	FUNCTION = "FUNCTION"
@@ -68,5 +68,5 @@ func LookupIdentifier(identification string) TokenType {
 		return tok
 	}
 
-	return IDENTIFICATION
+	return IDENTIFIER
 }
