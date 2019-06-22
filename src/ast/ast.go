@@ -82,6 +82,20 @@ type Boolean struct {
 	Value bool
 }
 
+// BlockStatement :
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+// ConditionalExpression :
+type ConditionalExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
 // statementNode :
 func (i *Identifier) statementNode() {}
 
@@ -250,4 +264,48 @@ func (b *Boolean) TokenLiteral() string {
 // String :
 func (b *Boolean) String() string {
 	return b.Token.Literal
+}
+
+// expressionNode :
+func (bs *BlockStatement) expressionNode() {}
+
+// TokenLiteral :
+func (bs *BlockStatement) TokenLiteral() string {
+	return bs.Token.Literal
+}
+
+// String :
+func (bs *BlockStatement) String() string {
+	var out bytes.Buffer
+
+	for _, statement := range bs.Statements {
+		out.WriteString(statement.String())
+	}
+
+	return out.String()
+}
+
+// expressionNode :
+func (ce *ConditionalExpression) expressionNode() {}
+
+// TokenLiteral :
+func (ce *ConditionalExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}
+
+// String :
+func (ce *ConditionalExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ce.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ce.Consequence.String())
+
+	if nil != ce.Alternative {
+		out.WriteString("else ")
+		out.WriteString(ce.Alternative.String())
+	}
+
+	return out.String()
 }

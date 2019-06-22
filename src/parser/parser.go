@@ -292,6 +292,66 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	return expression
 }
 
+// parseBlockStatement :
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{
+		Token: p.currentToken,
+	}
+	block.Statements = []ast.Statement{}
+
+	p.nextToken()
+
+	for !p.currentTokenIs(token.RIGHT_BRACE) && !p.currentTokenIs(token.EOF) {
+		statement := p.parseStatement()
+
+		if nil != statement {
+			block.Statements = append(block.Statements, statement)
+		}
+
+		p.nextToken()
+	}
+
+	return block
+}
+
+// parseConditionalExpression :
+func (p *Parser) parseConditionalExpression() ast.Expression {
+	expresion := &ast.ConditionalExpression{
+		Token: p.currentToken,
+	}
+
+	if !p.expectPeek(token.LEFT_PARENTHESIS) {
+		return nil
+	}
+
+	p.nextToken()
+
+	expresion.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+
+	// This might not be true in one statement blocks
+	if !p.expectPeek(token.LEFT_BRACE) {
+		return nil
+	}
+
+	expresion.Consequence = p.parseBlockStatement()
+
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
+
+		if !p.expectPeek(token.LEFT_BRACE) {
+			return nil
+		}
+
+		expresion.Alternative = p.parseBlockStatement()
+	}
+
+	return expresion
+}
+
 // peekErrors :
 func (p *Parser) peekErrors(t token.TokenType) {
 	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
@@ -342,6 +402,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
+	p.registerPrefix(token.IF, p.parseConditionalExpression)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
