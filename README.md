@@ -1,4 +1,5 @@
 # TypeR
+
 > A superset language implemented in Go that "types" the R language
 
 ![TypeR logo](./logo/typer.png)
@@ -7,7 +8,7 @@
 
 According to the language site itself, [R](https://www.r-project.org/) is:
 
-_"R is a language and environment for statistical computing and graphics."_
+> R is a language and environment for statistical computing and graphics.
 
 Because it is a scripting language, R seeks to allow flexibility in the development and prototyping of ideas. Through its weak typing system this can be a problem for applications in production -- it is worth noting that this is not a "problem" of language since it was meant to behave the way it is, but this same behavior may end becoming a difficulty to maintain a great code base in the language.
 
@@ -36,6 +37,7 @@ multiply <- function(x, y) x * y
 ```
 
 #### Throw notation
+
 If a function throws an error or a warning, the caller has to know that without having to look at the implementation of the function itself.
 
 ```
@@ -75,6 +77,7 @@ result <- addTwo . square 2
 ```
 
 ### Prefix operations
+
 ```
 result <- (+) 1 2
 # result is 3
@@ -96,7 +99,7 @@ The following topics try to clarify the choice of some design decisions.
 
 As R alone is not a very performative language, Go was chosen to meet such need.
 
-_"But why Go and not another language?"_
+> But why Go and not another language?
 
 The answer is simple, Go is:
 
@@ -121,7 +124,7 @@ Even if it does not have some of the practicalities of the functional paradigm l
 
 - Right now? Everything, nothing is current working
 - Tooling for TypeR:
-  - Create a linter for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
+  - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
   - Create a debuger tool
   - Create a testing package
   - Support to [VS Code](https://code.visualstudio.com/) in:
@@ -155,6 +158,7 @@ As the idea is to actually leave this repository just for discussions related to
 ### Podcasts
 
 #### Hipsters
+
 - [Um Pouco de Compiladores](https://hipsters.tech/um-pouco-de-compiladores-hipsters-ponto-tech-105/)
 - [Linguagens Funcionais](https://hipsters.tech/linguagens-funcionais-hipsters-91/)
 - [Grandes Livros de Tecnologia](https://hipsters.tech/grandes-livros-de-tecnologia-hipsters-113/)
