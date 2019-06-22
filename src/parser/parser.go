@@ -352,6 +352,63 @@ func (p *Parser) parseConditionalExpression() ast.Expression {
 	return expresion
 }
 
+// parseFunctionParameters :
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	identifiers := []*ast.Identifier{}
+
+	if p.peekTokenIs(token.RIGHT_PARENTHESIS) {
+		p.nextToken()
+
+		return identifiers
+	}
+
+	p.nextToken()
+
+	identifier := &ast.Identifier{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+	identifiers = append(identifiers, identifier)
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+
+		identifier := &ast.Identifier{
+			Token: p.currentToken,
+			Value: p.currentToken.Literal,
+		}
+		identifiers = append(identifiers, identifier)
+	}
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+
+	return identifiers
+}
+
+// parseFunctionLiteral :
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	literal := &ast.FunctionLiteral{
+		Token: p.currentToken,
+	}
+
+	if !p.expectPeek(token.LEFT_PARENTHESIS) {
+		return nil
+	}
+
+	literal.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LEFT_BRACE) {
+		return nil
+	}
+
+	literal.Body = p.parseBlockStatement()
+
+	return literal
+}
+
 // peekErrors :
 func (p *Parser) peekErrors(t token.TokenType) {
 	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
@@ -403,6 +460,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseConditionalExpression)
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)

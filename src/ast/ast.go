@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"../token"
 )
@@ -20,6 +21,12 @@ type Statement interface {
 
 // Expression :
 type Expression interface {
+	Node
+	expressionNode()
+}
+
+// Header :
+type Header interface {
 	Node
 	expressionNode()
 }
@@ -94,6 +101,21 @@ type ConditionalExpression struct {
 	Condition   Expression
 	Consequence *BlockStatement
 	Alternative *BlockStatement
+}
+
+// IdentifierTypes :
+type IdentifierTypes struct {
+	Token  token.Token
+	Header Header
+}
+
+// FunctionLiteral :
+type FunctionLiteral struct {
+	Token token.Token
+	// IdentifierTypes contains the parameters and return values types
+	Contract   []*IdentifierTypes
+	Parameters []*Identifier
+	Body       *BlockStatement
 }
 
 // statementNode :
@@ -306,6 +328,33 @@ func (ce *ConditionalExpression) String() string {
 		out.WriteString("else ")
 		out.WriteString(ce.Alternative.String())
 	}
+
+	return out.String()
+}
+
+// expressionNode :
+func (fl *FunctionLiteral) expressionNode() {}
+
+// TokenLiteral :
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
+}
+
+// String :
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	parameters := []string{}
+
+	for _, p := range fl.Parameters {
+		parameters = append(parameters, p.String())
+	}
+
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(parameters, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
 
 	return out.String()
 }
