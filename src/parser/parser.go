@@ -279,6 +279,19 @@ func (p *Parser) parseBoolean() ast.Expression {
 	}
 }
 
+// parseGroupedExpression :
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken()
+
+	expression := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+
+	return expression
+}
+
 // peekErrors :
 func (p *Parser) peekErrors(t token.TokenType) {
 	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
@@ -328,6 +341,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
+	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
