@@ -6,11 +6,18 @@ import (
 	"io"
 
 	"../lexer"
-	"../token"
+	"../parser"
 )
 
 // PROMPT :
 const PROMPT = ">> "
+
+// printParseErrors :
+func printParseErrors(out io.Writer, errors []string) {
+	for _, message := range errors {
+		io.WriteString(out, "\t"+message+"\n")
+	}
+}
 
 // Start :
 func Start(in io.Reader, out io.Writer) {
@@ -27,9 +34,16 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		l := lexer.InitializeLexer(line)
+		p := parser.InitializeParser(l)
+		program := p.ParseProgram()
 
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Printf("%+v\n", tok)
+		if 0 != len(p.Errors()) {
+			printParseErrors(out, p.Errors())
+
+			continue
 		}
+
+		io.WriteString(out, program.String())
+		io.WriteString(out, "\n")
 	}
 }
