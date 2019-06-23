@@ -215,6 +215,7 @@ let foo <- 2345678
 	}
 }
 
+// TestReturnStatements :
 func TestReturnStatements(t *testing.T) {
 	input := `
 return 5;
@@ -245,6 +246,7 @@ return 1230987123
 	}
 }
 
+// TestIdentifierExpression :
 func TestIdentifierExpression(t *testing.T) {
 	input := "foobar"
 
@@ -276,6 +278,7 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 }
 
+// TestIntegerLiteralExpression :
 func TestIntegerLiteralExpression(t *testing.T) {
 	input := "5;"
 
@@ -309,6 +312,7 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+// TestParsingPrefixExpressions :
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
 		input    string
@@ -370,6 +374,7 @@ func TestParsingPrefixExpressions(t *testing.T) {
 	}
 }
 
+// TestParsingInfixExpressions :
 func TestParsingInfixExpressions(t *testing.T) {
 	infixTest := []struct {
 		input      string
@@ -468,6 +473,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 	}
 }
 
+// TestOperatorPrecedenceParsing  :
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -561,6 +567,18 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(TRUE == TRUE)",
 			"(!(TRUE == TRUE))",
 		},
+		{
+			"a + add(b * c) + d",
+			"((a + add((b * c))) + d)",
+		},
+		{
+			"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+			"add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+		},
+		{
+			"add(a + b + c * d / f + g)",
+			"add((((a + b) + ((c * d) / f)) + g))",
+		},
 	}
 
 	for _, tt := range tests {
@@ -578,6 +596,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 }
 
+// TestBooleanExpression :
 func TestBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input           string
@@ -622,6 +641,7 @@ func TestBooleanExpression(t *testing.T) {
 	}
 }
 
+// TestConditionalIfOnlyExpressions :
 func TestConditionalIfOnlyExpressions(t *testing.T) {
 	input := `if (x < y) { x }`
 
@@ -670,6 +690,7 @@ func TestConditionalIfOnlyExpressions(t *testing.T) {
 	}
 }
 
+// TestConditionalIfElseExpressions :
 func TestConditionalIfElseExpressions(t *testing.T) {
 	input := `if (x < y) { x } else { y }`
 
@@ -732,6 +753,7 @@ func TestConditionalIfElseExpressions(t *testing.T) {
 	}
 }
 
+// TestFunctionLiteral :
 func TestFunctionLiteral(t *testing.T) {
 	input := `function(x, y) { x + y; }`
 
@@ -777,6 +799,7 @@ func TestFunctionLiteral(t *testing.T) {
 	testInfixExpression(t, bodyStatements.Expression, "x", "+", "y")
 }
 
+// TestFunctionParametersParsing :
 func TestFunctionParametersParsing(t *testing.T) {
 	tests := []struct {
 		input              string
@@ -820,4 +843,43 @@ func TestFunctionParametersParsing(t *testing.T) {
 			testLiteralExpresion(t, function.Parameters[i], identifier)
 		}
 	}
+}
+
+// TestCallExporessionParsing :
+func TestCallExporessionParsing(t *testing.T) {
+	input := "add(1, 2 * 3, 4 + 5)"
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	if 1 != len(program.Statements) {
+		t.Fatalf("program.Statements does not contain %d statements, got=%d", 1, len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("statement is not ExpressionStatement, got=%T", program.Statements[0])
+	}
+
+	expression, ok := statement.Expression.(*ast.CallExpression)
+
+	if !ok {
+		t.Fatalf("statement.Expression is not ast.CallExpression, got=%T", statement.Expression)
+	}
+
+	if !testIdentifier(t, expression.Function, "add") {
+		return
+	}
+
+	if 3 != len(expression.Arguments) {
+		t.Fatalf("wrong length of arguments, got=%d", len(expression.Arguments))
+	}
+
+	testLiteralExpresion(t, expression.Arguments[0], 1)
+	testInfixExpression(t, expression.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, expression.Arguments[2], 4, "+", 5)
 }

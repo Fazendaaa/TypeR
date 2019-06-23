@@ -21,14 +21,15 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.DOUBLE_EQUAL: EQUALS,
-	token.DIFFERENT:    EQUALS,
-	token.LESS_THAN:    LESSGREATER,
-	token.GREATER_THAN: LESSGREATER,
-	token.PLUS:         SUM,
-	token.MINUS:        SUM,
-	token.SLASH:        PRODUCT,
-	token.ASTERISK:     PRODUCT,
+	token.DOUBLE_EQUAL:     EQUALS,
+	token.DIFFERENT:        EQUALS,
+	token.LESS_THAN:        LESSGREATER,
+	token.GREATER_THAN:     LESSGREATER,
+	token.PLUS:             SUM,
+	token.MINUS:            SUM,
+	token.SLASH:            PRODUCT,
+	token.ASTERISK:         PRODUCT,
+	token.LEFT_PARENTHESIS: CALL,
 }
 
 // Parser :
@@ -256,7 +257,7 @@ func (p *Parser) currentPrecedence() int {
 
 // parseInfixExpression :
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	expresion := &ast.InfixExpression{
+	expression := &ast.InfixExpression{
 		Token:    p.currentToken,
 		Operator: p.currentToken.Literal,
 		Left:     left,
@@ -266,9 +267,9 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	p.nextToken()
 
-	expresion.Right = p.parseExpression(precedence)
+	expression.Right = p.parseExpression(precedence)
 
-	return expresion
+	return expression
 }
 
 // parseBoolean :
@@ -316,7 +317,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 
 // parseConditionalExpression :
 func (p *Parser) parseConditionalExpression() ast.Expression {
-	expresion := &ast.ConditionalExpression{
+	expression := &ast.ConditionalExpression{
 		Token: p.currentToken,
 	}
 
@@ -326,7 +327,7 @@ func (p *Parser) parseConditionalExpression() ast.Expression {
 
 	p.nextToken()
 
-	expresion.Condition = p.parseExpression(LOWEST)
+	expression.Condition = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
 		return nil
@@ -337,7 +338,7 @@ func (p *Parser) parseConditionalExpression() ast.Expression {
 		return nil
 	}
 
-	expresion.Consequence = p.parseBlockStatement()
+	expression.Consequence = p.parseBlockStatement()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
@@ -346,10 +347,10 @@ func (p *Parser) parseConditionalExpression() ast.Expression {
 			return nil
 		}
 
-		expresion.Alternative = p.parseBlockStatement()
+		expression.Alternative = p.parseBlockStatement()
 	}
 
-	return expresion
+	return expression
 }
 
 // parseFunctionParameters :
@@ -407,6 +408,45 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	literal.Body = p.parseBlockStatement()
 
 	return literal
+}
+
+// parseCallArguments :
+func (p *Parser) parseCallArguments() []ast.Expression {
+	arguments := []ast.Expression{}
+
+	if p.peekTokenIs(token.RIGHT_PARENTHESIS) {
+		p.nextToken()
+
+		return arguments
+	}
+
+	p.nextToken()
+
+	arguments = append(arguments, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+
+		arguments = append(arguments, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+
+	return arguments
+}
+
+// parseCallExpression :
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	expression := &ast.CallExpression{
+		Token:    p.currentToken,
+		Function: function,
+	}
+	expression.Arguments = p.parseCallArguments()
+
+	return expression
 }
 
 // peekErrors :
@@ -470,6 +510,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.DIFFERENT, p.parseInfixExpression)
 	p.registerInfix(token.LESS_THAN, p.parseInfixExpression)
 	p.registerInfix(token.GREATER_THAN, p.parseInfixExpression)
+	p.registerInfix(token.LEFT_PARENTHESIS, p.parseCallExpression)
 
 	return p
 }
