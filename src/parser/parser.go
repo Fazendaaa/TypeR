@@ -449,6 +449,14 @@ func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	return expression
 }
 
+// parseStringLiteral :
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+}
+
 // peekErrors :
 func (p *Parser) peekErrors(t token.TokenType) {
 	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
@@ -501,6 +509,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseConditionalExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefix(token.STRING, p.parseStringLiteral)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)

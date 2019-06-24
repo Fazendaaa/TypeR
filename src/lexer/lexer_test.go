@@ -27,6 +27,9 @@ if (5 <= 10) {
 
 let foo <- 10
 foo <- 5
+"foo"
+"bar"
+"foo bar"
 `
 
 	test := []struct {
@@ -101,6 +104,9 @@ foo <- 5
 		{token.IDENTIFIER, "foo"},
 		{token.ASSIGN, "<-"},
 		{token.INT, "5"},
+		{token.STRING, "foo"},
+		{token.STRING, "bar"},
+		{token.STRING, "foo bar"},
 		{token.EOF, ""},
 	}
 
