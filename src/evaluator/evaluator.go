@@ -210,6 +210,57 @@ func evalIdentifier(node *ast.Identifier, environment *object.Environment) objec
 	return value
 }
 
+// evalExpression :
+func evalExpression(expressions []ast.Expression, environment *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, expression := range expressions {
+		evaluated := Eval(expression, environment)
+
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+
+		result = append(result, evaluated)
+	}
+
+	return result
+}
+
+// unwrapReturnValue :
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+
+	return obj
+}
+
+// extendendFunctionEnvironment :
+func extendendFunctionEnvironment(fn *object.Function, arguments []object.Object) *object.Environment {
+	environment := object.InitializeEnclosedEnvironment(fn.Environment)
+
+	for parameterIdx, parameter := range fn.Parameters {
+		environment.Set(parameter.Value, arguments[parameterIdx])
+	}
+
+	return environment
+}
+
+// applyFunction :
+func applyFunction(fn object.Object, arguments []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+
+	if !ok {
+		return newError("not a function: %s", fn.Type())
+	}
+
+	extendedEnvironment := extendendFunctionEnvironment(function, arguments)
+	evaluated := Eval(function.Body, extendedEnvironment)
+
+	return unwrapReturnValue(evaluated)
+}
+
 // Eval :
 func Eval(node ast.Node, environment *object.Environment) object.Object {
 	switch node := node.(type) {
@@ -269,6 +320,29 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		environment.Set(node.Name.Value, value)
 	case *ast.Identifier:
 		return evalIdentifier(node, environment)
+	case *ast.FunctionLiteral:
+		parameters := node.Parameters
+		body := node.Body
+
+		return &object.Function{
+			Parameters:  parameters,
+			Environment: environment,
+			Body:        body,
+		}
+	case *ast.CallExpression:
+		function := Eval(node.Function, environment)
+
+		if isError(function) {
+			return function
+		}
+
+		arguments := evalExpression(node.Arguments, environment)
+
+		if 1 == len(arguments) && isError(arguments[0]) {
+			return arguments[0]
+		}
+
+		return applyFunction(function, arguments)
 	}
 
 	return nil
