@@ -12,6 +12,7 @@ const (
 	BOOLEAN_OBJECT      = "BOOLEAN"
 	NULL_OBJECT         = "NULL"
 	RETURN_VALUE_OBJECT = "RETURN_VALUE"
+	ERROR_OBJECT        = "ERROR"
 )
 
 // Object :
@@ -33,8 +34,14 @@ type Boolean struct {
 // Null :
 type Null struct{}
 
+// ReturnValue :
 type ReturnValue struct {
 	Value Object
+}
+
+// Error :
+type Error struct {
+	Message string
 }
 
 // Inspect :
@@ -79,4 +86,14 @@ func (rv *ReturnValue) Type() ObjectType {
 // Inspect :
 func (rv *ReturnValue) Inspect() string {
 	return rv.Value.Inspect()
+}
+
+// Type :
+func (e *Error) Type() ObjectType {
+	return ERROR_OBJECT
+}
+
+// Inspect :
+func (e *Error) Inspect() string {
+	return "[ERROR]: " + e.Message
 }
