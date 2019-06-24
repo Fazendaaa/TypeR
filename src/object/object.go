@@ -1,6 +1,8 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ObjectType :
 type ObjectType string
@@ -42,7 +44,11 @@ func (i *Integer) Type() ObjectType {
 
 // Inspect :
 func (b *Boolean) Inspect() string {
-	return fmt.Sprintf("%t", b.Value)
+	if b.Value {
+		return "TRUE"
+	}
+
+	return "FALSE"
 }
 
 // Type :

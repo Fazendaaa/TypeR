@@ -5,6 +5,15 @@ import (
 	"../object"
 )
 
+var (
+	TRUE = &object.Boolean{
+		Value: true,
+	}
+	FALSE = &object.Boolean{
+		Value: false,
+	}
+)
+
 // evalStatements :
 func evalStatements(statements []ast.Statement) object.Object {
 	var result object.Object
@@ -14,6 +23,15 @@ func evalStatements(statements []ast.Statement) object.Object {
 	}
 
 	return result
+}
+
+// nativeBoolToBooleanObject :
+func nativeBoolToBooleanObject(input bool) object.Object {
+	if input {
+		return TRUE
+	}
+
+	return FALSE
 }
 
 // Eval :
@@ -27,6 +45,8 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{
 			Value: node.Value,
 		}
+	case *ast.Boolean:
+		return nativeBoolToBooleanObject(node.Value)
 	}
 
 	return nil
