@@ -11,6 +11,9 @@ import (
 // ObjectType :
 type ObjectType string
 
+// BuiltinFunction :
+type BuiltinFunction func(arguments ...Object) Object
+
 const (
 	INTEGER_OBJECT      = "INTEGER"
 	BOOLEAN_OBJECT      = "BOOLEAN"
@@ -19,6 +22,7 @@ const (
 	ERROR_OBJECT        = "ERROR"
 	FUNCTION_OBJECT     = "FUNCTION"
 	STRING_OBJECT       = "STRING"
+	BUILTIN_OBJECT      = "BUILTIN"
 )
 
 // Object :
@@ -66,6 +70,11 @@ type Function struct {
 // String :
 type String struct {
 	Value string
+}
+
+// Builtin :
+type Builtin struct {
+	Fn BuiltinFunction
 }
 
 // Inspect :
@@ -154,4 +163,14 @@ func (s *String) Type() ObjectType {
 // Inspect :
 func (s *String) Inspect() string {
 	return s.Value
+}
+
+// Type :
+func (b *Builtin) Type() ObjectType {
+	return BUILTIN_OBJECT
+}
+
+// Inspect :
+func (b *Builtin) Inspect() string {
+	return "builtin function"
 }
