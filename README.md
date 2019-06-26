@@ -84,11 +84,13 @@ result <- (+) 1 2
 ```
 
 ### Polymorphism
+
 > More on that later on
 
 ## Changes from R
 
 - Removing loops as **for**, **while**, **do ... while**;
+- Removing the **<<-** operator;
 - ...
 
 ## Why
