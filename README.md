@@ -171,3 +171,4 @@ As the idea is to actually leave this repository just for discussions related to
 - [Lexical Scanning in Go - Rob Pike](https://youtu.be/HxaD_trXwRE)
 - [Sydney Golang Meetup - Rob Pike - Go 2 Draft Specifications](https://youtu.be/RIvL2ONhFBI)
 - [Why Go Is Successful (aka Simplicity is Complicated)](https://youtu.be/k9Zbuuo51go)
+- [Lambda Calculus - Fundamentals of Lambda Calculus & Functional Programming in JavaScript](https://youtu.be/3VQ382QG-y4)
