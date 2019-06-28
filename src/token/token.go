@@ -44,6 +44,8 @@ const (
 	RIGHT_PARENTHESIS = ")"
 	LEFT_BRACE        = "{"
 	RIGHT_BRACE       = "}"
+	LEFT_BRACKET      = "["
+	RIGHT_BRACKET     = "]"
 
 	ASSIGN       = "<-"
 	DOUBLE_EQUAL = "=="

@@ -366,6 +366,16 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		return &object.String{
 			Value: node.Value,
 		}
+	case *ast.ArrayLiteral:
+		elements := evalExpression(node.Elements, environment)
+
+		if 1 == len(elements) && isError(elements[0]) {
+			return elements[0]
+		}
+
+		return &object.Array{
+			Elements: elements,
+		}
 	}
 
 	return nil

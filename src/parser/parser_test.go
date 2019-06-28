@@ -591,6 +591,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"add(a + b + c * d / f + g)",
 			"add((((a + b) + ((c * d) / f)) + g))",
 		},
+		{
+			"a * [1, 2, 3, 4][b * c] * d",
+			"((a * ([1, 2, 3, 4][(b * c)])) * d)",
+		},
+		{
+			"add(a * b[2], b[1], 2 * [1, 2][1])",
+			"add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))",
+		},
 	}
 
 	for _, tt := range tests {
@@ -916,4 +924,70 @@ func TestStringLiteralExpression(t *testing.T) {
 		t.Errorf("literal.Value not %q, got=%q", "hello world", literal.Value)
 	}
 
+}
+
+// TestParsingArryLiteral :
+func TestParsingArryLiteral(t *testing.T) {
+	input := `[1, 2 * 2, 3 + 3]`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statement[0] not an ExpressionStatement, got=%T", program.Statements[0])
+	}
+
+	array, ok := statement.Expression.(*ast.ArrayLiteral)
+
+	if !ok {
+		t.Fatalf("statement.Expression not an *ast.ArrayLiteral, got=%T", statement.Expression)
+	}
+
+	if 3 != len(array.Elements) {
+		t.Fatalf("array.Elements length different from %d, got=%d", 3, len(array.Elements))
+
+		return
+	}
+
+	testIntegerLiteral(t, array.Elements[0], 1)
+	testInfixExpression(t, array.Elements[1], 2, "*", 2)
+	testInfixExpression(t, array.Elements[2], 3, "+", 3)
+}
+
+// TestParsingIndexExpressions :
+func TestParsingIndexExpressions(t *testing.T) {
+	input := `myArray[ 1 + 1 ]`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statement[0] not an ExpressionStatement, got=%T", program.Statements[0])
+	}
+
+	indexExpression, ok := statement.Expression.(*ast.IndexExpression)
+
+	if !ok {
+		t.Fatalf("statement.Expression not an *ast.IndexExpression, got=%T", statement.Expression)
+	}
+
+	if !testIdentifier(t, indexExpression.Left, "myArray") {
+		t.Fatalf("indexExpression.Left is different than '%s', got=%s", "myArray", indexExpression.Left)
+
+		return
+	}
+
+	if !testInfixExpression(t, indexExpression.Index, 1, "+", 1) {
+		return
+	}
 }

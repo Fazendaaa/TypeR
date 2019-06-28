@@ -30,6 +30,8 @@ foo <- 5
 "foo"
 "bar"
 "foo bar"
+
+[1, 2]
 `
 
 	test := []struct {
@@ -107,6 +109,11 @@ foo <- 5
 		{token.STRING, "foo"},
 		{token.STRING, "bar"},
 		{token.STRING, "foo bar"},
+		{token.LEFT_BRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RIGHT_BRACKET, "]"},
 		{token.EOF, ""},
 	}
 

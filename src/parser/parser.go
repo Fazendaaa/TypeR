@@ -18,6 +18,7 @@ const (
 	PRODUCT         // *
 	PREFIX          // -X or !X
 	CALL            // myFunction(X)
+	INDEX           // myArray[?]
 )
 
 var precedences = map[token.TokenType]int{
@@ -30,6 +31,7 @@ var precedences = map[token.TokenType]int{
 	token.SLASH:            PRODUCT,
 	token.ASTERISK:         PRODUCT,
 	token.LEFT_PARENTHESIS: CALL,
+	token.LEFT_BRACKET:     INDEX,
 }
 
 // Parser :
@@ -438,13 +440,41 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	return arguments
 }
 
+// parseExpressionList :
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	list := []ast.Expression{}
+
+	if p.peekTokenIs(end) {
+		p.nextToken()
+
+		return list
+	}
+
+	p.nextToken()
+
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
+}
+
 // parseCallExpression :
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	expression := &ast.CallExpression{
 		Token:    p.currentToken,
 		Function: function,
 	}
-	expression.Arguments = p.parseCallArguments()
+	expression.Arguments = p.parseExpressionList(token.RIGHT_PARENTHESIS)
 
 	return expression
 }
@@ -455,6 +485,34 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 		Token: p.currentToken,
 		Value: p.currentToken.Literal,
 	}
+}
+
+// parseArrayLiteral :
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	array := &ast.ArrayLiteral{
+		Token: p.currentToken,
+	}
+
+	array.Elements = p.parseExpressionList(token.RIGHT_BRACKET)
+
+	return array
+}
+
+// parseIndexExpression :
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	expression := &ast.IndexExpression{
+		Token: p.currentToken,
+		Left:  left,
+	}
+
+	p.nextToken()
+	expression.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RIGHT_BRACKET) {
+		return nil
+	}
+
+	return expression
 }
 
 // peekErrors :
@@ -510,6 +568,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.IF, p.parseConditionalExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
+	p.registerPrefix(token.LEFT_BRACKET, p.parseArrayLiteral)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -520,6 +579,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LESS_THAN, p.parseInfixExpression)
 	p.registerInfix(token.GREATER_THAN, p.parseInfixExpression)
 	p.registerInfix(token.LEFT_PARENTHESIS, p.parseCallExpression)
+	p.registerInfix(token.LEFT_BRACKET, p.parseIndexExpression)
 
 	return p
 }
