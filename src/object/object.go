@@ -192,8 +192,8 @@ func (a *Array) Inspect() string {
 
 	elements := []string{}
 
-	for _, element := range elements {
-		elements = append(elements, element)
+	for _, element := range a.Elements {
+		elements = append(elements, element.Inspect())
 	}
 
 	out.WriteString("[")
