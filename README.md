@@ -87,6 +87,18 @@ result <- (+) 1 2
 
 > More on that later on
 
+### Import
+
+Add support to **import** notation that, later on, transforms it to desired NAMESPACE file:
+
+```
+import sd from stats
+import mean from base
+import * from graphics
+```
+
+The idea to use the match operator is only to use it as a trump card when programing, the NAMESPACE file will import only the used functions.
+
 ## Changes from R
 
 - Removing loops as **for**, **while**, **do ... while**;
