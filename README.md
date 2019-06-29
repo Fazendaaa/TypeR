@@ -45,6 +45,24 @@ isURLValid("www.google.com")
 # isURLValid := String -> Bool; throws error, warning
 ```
 
+#### New notation
+
+Maybe add two new notation to functions:
+
+```
+divide <- (x, y) <- x / y
+# divide := Numeric a => a -> a -> a
+```
+
+Or:
+
+```
+divide x y <- x / y
+# divide := Numeric a => a -> a -> a
+```
+
+Share your thoughts through the [author](#Author) channels of communication.
+
 ### Constants
 
 ```
@@ -103,6 +121,8 @@ The idea to use the match operator is only to use it as a trump card when progra
 
 - Removing loops as **for**, **while**, **do ... while**;
 - Removing the **<<-** operator;
+- Changing the `[[ ]]` operator to `[ ]`;
+- Changing the `[x, y]` operator to `[x][y]`;
 - ...
 
 ## Why
@@ -145,6 +165,7 @@ Even if it does not have some of the practicalities of the functional paradigm l
     - Linter
     - Debuger
     - Testing
+  - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run
   - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority
   - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
   - Write another package to transpile the TypeR code into [Julia](https://julialang.org/) code
@@ -184,3 +205,4 @@ As the idea is to actually leave this repository just for discussions related to
 - [Sydney Golang Meetup - Rob Pike - Go 2 Draft Specifications](https://youtu.be/RIvL2ONhFBI)
 - [Why Go Is Successful (aka Simplicity is Complicated)](https://youtu.be/k9Zbuuo51go)
 - [Lambda Calculus - Fundamentals of Lambda Calculus & Functional Programming in JavaScript](https://youtu.be/3VQ382QG-y4)
+- [Carl Meyer - Type-checked Python in the real world - PyCon 2018](https://youtu.be/pMgmKJyWKn8)
