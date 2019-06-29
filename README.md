@@ -220,10 +220,11 @@ Even if it does not have some of the practicalities of the functional paradigm l
     - Linter
     - Debuger
     - Testing
-  - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run
+  - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run:
+    - That being said, improve this idea by build something "like it" which builds tests cases through the run of the code just so the user approve them later on whether they are consistent or not
   - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority
   - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
-  - Write another package to compile the TypeR code into [Julia](https://julialang.org/) code and Haskell itself
+  - Write another package to compile the TypeR code into [Julia](https://julialang.org/) code or/and Haskell itself
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
 - Once the language is stabilized, rewrite the basic packages of R in it and possibly compile them into machine code to gain performance.
 - Much more
