@@ -213,6 +213,7 @@ Even if it does not have some of the practicalities of the functional paradigm l
 
 - Right now? Everything, nothing is current working
 - Tooling for TypeR:
+  - Create a config file kinda like it [tsconfig](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) one
   - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
   - Create a debuger tool
   - Create a testing package
@@ -222,7 +223,8 @@ Even if it does not have some of the practicalities of the functional paradigm l
     - Testing
   - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run:
     - That being said, improve this idea by build something "like it" which builds tests cases through the run of the code just so the user approve them later on whether they are consistent or not
-  - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority
+  - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority:
+    - Add an integration with the linter tool to add Big-O notation to the function documentation
   - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
   - Write another package to compile the TypeR code into [Julia](https://julialang.org/) code or/and Haskell itself
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
