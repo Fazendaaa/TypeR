@@ -1,6 +1,6 @@
 # TypeR
 
-> A superset language implemented in Go that "types" the R language
+> A superset language implemented in Go that types the R language
 
 ![TypeR logo](./logo/typer.png)
 
@@ -16,7 +16,35 @@ Because it is a scripting language, R seeks to allow flexibility in the developm
 
 At the end of the day the idea is to write a "functional and typed R code" which will then spit out a normal code in R after all the checks are done, avoiding possible errors when the code is running in production.
 
-## How should it supposed to be?
+Share your thoughts about this through the [author](#Author) channels of communication.
+
+- [TypeR](#TypeR)
+  - [Introduction](#Introduction)
+  - [How should it supposed to be](#How-should-it-supposed-to-be)
+    - [Functions](#Functions)
+      - [Throw notation](#Throw-notation)
+      - [New notation](#New-notation)
+    - [Constants](#Constants)
+    - [Point free notation](#Point-free-notation)
+    - [Prefix operations](#Prefix-operations)
+    - [Polymorphism](#Polymorphism)
+      - [Boundaries](#Boundaries)
+    - [Import](#Import)
+  - [Changes from R](#Changes-from-R)
+  - [Why](#Why)
+    - [Go](#Go)
+      - [And why not use toolings to as Lex and YACC](#And-why-not-use-toolings-to-as-Lex-and-YACC)
+    - [Functional approach](#Functional-approach)
+  - [TODO](#TODO)
+    - [Note](#Note)
+  - [Author](#Author)
+  - [Reference](#Reference)
+    - [Books](#Books)
+    - [Podcasts](#Podcasts)
+      - [Hipsters](#Hipsters)
+    - [Videos](#Videos)
+
+## How should it supposed to be
 
 A small example of how language it's supposed to be one day.
 
@@ -47,7 +75,7 @@ isURLValid("www.google.com")
 
 #### New notation
 
-Maybe add two new notation to functions:
+Maybe add or replace the old function notation with one of those two new notations:
 
 ```
 divide <- (x, y) <- x / y
@@ -60,8 +88,6 @@ Or:
 divide x y <- x / y
 # divide := Numeric a => a -> a -> a
 ```
-
-Share your thoughts through the [author](#Author) channels of communication.
 
 ### Constants
 
@@ -105,6 +131,35 @@ result <- (+) 1 2
 
 > More on that later on
 
+#### Boundaries
+
+This is the sketch of an idea, it may not be plausible but it proposes to reduce lines of code and facilitate reusability. If you have any knowledge of C / C ++, you may have seen something like:
+
+```C
+typedef myNumber unsigned int;
+```
+
+The idea is to start from this to the creation of new variables from others, only expanding it to parametric numerical types, imposing limits of sets intervals for them:
+
+```
+typedef Binary int, [0, 1]
+typedef ConfidenceLevel double, [0, 1[
+typedef MySet double, Binary U ]1.5, 8.9]
+```
+
+That would mean being able to do the following:
+
+```
+normalizeDistribution := Vector[Numeric] -> ConfidenceLevel -> Vector[Numeric]
+normalizeDistribution <- function(set, level) {
+  ...
+
+  return normalized
+}
+```
+
+Under the hood this means that if these conditions were not followed during the program being run, an error would be given. The idea of this proposal is to clear the code of treatments that the programmer has to do and to be able to reuse those definitions through the code.
+
 ### Import
 
 Add support to **import** notation that, later on, transforms it to desired NAMESPACE file:
@@ -142,7 +197,7 @@ The answer is simple, Go is:
 - Its concurrent design helps when writing a compiler
 - ...
 
-#### And why not use toolings to as Lex and YACC?
+#### And why not use toolings to as Lex and YACC
 
 As you can see the processing of language grammar was done without the aid of known tools -- such as [Flex](https://en.wikipedia.org/wiki/Flex_lexical_analyser) and [YACC](https://en.wikipedia.org/wiki/Yacc) -- but this was due to the examples given in the material used in the [reference](#Reference); as the idea of this project is, besides making a new language by itself, to aid the learning of compilers; this approach had a more didactic aspect involved in it.
 
@@ -168,9 +223,12 @@ Even if it does not have some of the practicalities of the functional paradigm l
   - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run
   - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority
   - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
-  - Write another package to transpile the TypeR code into [Julia](https://julialang.org/) code
+  - Write another package to compile the TypeR code into [Julia](https://julialang.org/) code and Haskell itself
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
+- Once the language is stabilized, rewrite the basic packages of R in it and possibly compile them into machine code to gain performance.
 - Much more
+
+These ideas are "more or less" organized in order of priority, even so it was decided not to order them because it will not necessarily be possible to do them in the proposed order.
 
 ### Note
 
