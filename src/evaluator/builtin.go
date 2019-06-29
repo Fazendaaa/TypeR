@@ -1,6 +1,10 @@
 package evaluator
 
-import "../object"
+import (
+	"fmt"
+
+	"../object"
+)
 
 // wrongArgumentsError :
 func wrongArgumentsError(size int) object.Object {
@@ -112,6 +116,15 @@ var builtins = map[string]*object.Builtin{
 			return &object.Array{
 				Elements: newElements,
 			}
+		},
+	},
+	"puts": &object.Builtin{
+		Fn: func(arguments ...object.Object) object.Object {
+			for _, argument := range arguments {
+				fmt.Println(argument.Inspect())
+			}
+
+			return NULL
 		},
 	},
 }
