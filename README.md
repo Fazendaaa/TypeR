@@ -52,14 +52,14 @@ A small example of how language it's supposed to be one day.
 
 ### Functions
 
-```
+```TypeR
 add := Numeric a => a -> a -> a
 add <- function(x, y) x + y
 ```
 
 The function header is similar to Haskell's -- read more at [functional approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
 
-```
+```TypeR
 multiply <- function(x, y) x * y
 # multiply := Numeric a => a -> a -> a
 ```
@@ -68,7 +68,7 @@ multiply <- function(x, y) x * y
 
 If a function throws an error or a warning, the caller has to know that without having to look at the implementation of the function itself.
 
-```
+```TypeR
 isURLValid("www.google.com")
 # isURLValid := String -> Bool; throws error, warning
 ```
@@ -77,21 +77,21 @@ isURLValid("www.google.com")
 
 Maybe add or replace the old function notation with one of those two new notations:
 
-```
+```TypeR
 divide <- (x, y) <- x / y
 # divide := Numeric a => a -> a -> a
 ```
 
 Or:
 
-```
+```TypeR
 divide x y <- x / y
 # divide := Numeric a => a -> a -> a
 ```
 
 ### Constants
 
-```
+```TypeR
 result <- add(1, 2)
 # result is 3
 
@@ -101,7 +101,7 @@ result <- 4
 
 If you want a "constant" to have its value changed, you must use the **let** keyword.
 
-```
+```TypeR
 let result <- add(1, 2)
 # result is 3
 
@@ -111,7 +111,7 @@ result <- 4
 
 ### Point free notation
 
-```
+```TypeR
 square <- function(x) x ^ 2
 
 addTwo <- function(x) x + 2
@@ -122,7 +122,7 @@ result <- addTwo . square 2
 
 ### Prefix operations
 
-```
+```TypeR
 result <- (+) 1 2
 # result is 3
 ```
@@ -141,7 +141,7 @@ typedef myNumber unsigned int;
 
 The idea is to start from this to the creation of new variables from others, only expanding it to parametric numerical types, imposing limits of sets intervals for them:
 
-```
+```TypeR
 typedef Binary int, [0, 1]
 typedef ConfidenceLevel double, [0, 1[
 typedef MySet double, Binary U ]1.5, 8.9]
@@ -149,7 +149,7 @@ typedef MySet double, Binary U ]1.5, 8.9]
 
 That would mean being able to do the following:
 
-```
+```TypeR
 normalizeDistribution := Vector[Numeric] -> ConfidenceLevel -> Vector[Numeric]
 normalizeDistribution <- function(set, level) {
   ...
@@ -164,7 +164,7 @@ Under the hood this means that if these conditions were not followed during the 
 
 Add support to **import** notation that, later on, transforms it to desired NAMESPACE file:
 
-```
+```TypeR
 import sd from stats
 import mean from base
 import * from graphics
@@ -212,6 +212,8 @@ Even if it does not have some of the practicalities of the functional paradigm l
 ## TODO
 
 - Right now? Everything, nothing is current working
+- **MAYBE** add a way to link a Stack Overflow link to error messages in the VM -- this is a tip from a friend, thank you Lago
+- Create syntax support to render Markdown files
 - Tooling for TypeR:
   - Create a config file kinda like it [tsconfig](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) one
   - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
