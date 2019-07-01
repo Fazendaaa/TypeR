@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"../evaluator"
+	"../compiler"
 	"../lexer"
-	"../object"
 	"../parser"
+	"../virtualmachine"
 )
 
 // PROMPT :
@@ -24,7 +24,6 @@ func printParseErrors(out io.Writer, errors []string) {
 // Start :
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	environment := object.InitializeEnvironment()
 
 	for {
 		fmt.Printf(PROMPT)
@@ -46,11 +45,26 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program, environment)
+		comp := compiler.InitializeCompiler()
+		err := comp.Compile(program)
 
-		if nil != evaluated {
-			io.WriteString(out, evaluated.Inspect())
-			io.WriteString(out, "\n")
+		if nil != err {
+			fmt.Fprintf(out, "Woops: Compilation failed:\n %s\n", err)
+
+			continue
 		}
+
+		machine := virtualmachine.InitializeVirtualMachine(comp.Bytecode())
+		err = machine.Run()
+
+		if nil != err {
+			fmt.Fprintf(out, "Woops: executing bytecode fails:\n %s\n", err)
+
+			continue
+		}
+
+		stackTop := machine.StackTop()
+		io.WriteString(out, stackTop.Inspect())
+		io.WriteString(out, "\n")
 	}
 }
