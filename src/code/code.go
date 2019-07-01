@@ -14,6 +14,7 @@ type Opcode byte
 
 const (
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 // Definition :
@@ -27,6 +28,10 @@ var definitions = map[Opcode]*Definition{
 	OpConstant: {
 		"OpConstant",
 		[]int{2},
+	},
+	OpAdd: {
+		"OpAdd",
+		[]int{},
 	},
 }
 
@@ -104,6 +109,8 @@ func (i Instructions) fmtInstruction(definition *Definition, operands []int) str
 	}
 
 	switch operandCount {
+	case 0:
+		return definition.Name
 	case 1:
 		return fmt.Sprintf("%s %d", definition.Name, operands[0])
 	}

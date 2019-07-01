@@ -41,6 +41,14 @@ func (vm *VirtualMachine) push(obj object.Object) error {
 	return nil
 }
 
+// pop :
+func (vm *VirtualMachine) pop() object.Object {
+	obj := vm.stack[vm.sp-1]
+	vm.sp--
+
+	return obj
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -56,6 +64,16 @@ func (vm *VirtualMachine) Run() error {
 			if nil != err {
 				return err
 			}
+		case code.OpAdd:
+			right := vm.pop()
+			left := vm.pop()
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+
+			result := leftValue + rightValue
+			vm.push(&object.Integer{
+				Value: result,
+			})
 		}
 	}
 
