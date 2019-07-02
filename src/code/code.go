@@ -16,6 +16,9 @@ const (
 	OpConstant Opcode = iota
 	OpAdd
 	OpPop
+	OpSubtract
+	OpMultiply
+	OpDivide
 )
 
 // Definition :
@@ -36,6 +39,18 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpPop: {
 		"OpPop",
+		[]int{},
+	},
+	OpSubtract: {
+		"OpSubtract",
+		[]int{},
+	},
+	OpMultiply: {
+		"OpMultiply",
+		[]int{},
+	},
+	OpDivide: {
+		"OpDivide",
 		[]int{},
 	},
 }

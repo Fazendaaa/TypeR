@@ -54,6 +54,45 @@ func (vm *VirtualMachine) pop() object.Object {
 	return obj
 }
 
+func (vm *VirtualMachine) executeIntegerBinaryOperation(op code.Opcode, left, right object.Object) error {
+	var result int64
+
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+
+	switch op {
+	case code.OpAdd:
+		result = leftValue + rightValue
+	case code.OpSubtract:
+		result = leftValue - rightValue
+	case code.OpMultiply:
+		result = leftValue * rightValue
+	case code.OpDivide:
+		result = leftValue / rightValue
+	default:
+		return fmt.Errorf("unknown integer operator: %d", op)
+	}
+
+	return vm.push(&object.Integer{
+		Value: result,
+	})
+}
+
+// executeBinaryOperation :
+func (vm *VirtualMachine) executeBinaryOperation(op code.Opcode) error {
+	right := vm.pop()
+	left := vm.pop()
+
+	leftType := left.Type()
+	rightType := right.Type()
+
+	if object.INTEGER_OBJECT == leftType && object.INTEGER_OBJECT == rightType {
+		return vm.executeIntegerBinaryOperation(op, left, right)
+	}
+
+	return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -69,16 +108,13 @@ func (vm *VirtualMachine) Run() error {
 			if nil != err {
 				return err
 			}
-		case code.OpAdd:
-			right := vm.pop()
-			left := vm.pop()
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
 
-			result := leftValue + rightValue
-			vm.push(&object.Integer{
-				Value: result,
-			})
+		case code.OpAdd, code.OpSubtract, code.OpMultiply, code.OpDivide:
+			err := vm.executeBinaryOperation(op)
+
+			if nil != err {
+				return err
+			}
 
 		case code.OpPop:
 			vm.pop()
