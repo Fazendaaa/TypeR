@@ -74,7 +74,7 @@ func runVirtualMachineTests(t *testing.T, tests []virtualMachineTestCase) {
 			t.Fatalf("Virtual Machine error: %s", err)
 		}
 
-		stackElement := virtualMachine.StackTop()
+		stackElement := virtualMachine.LastPoppedStackElement()
 
 		testExpectedObject(t, tt.expected, stackElement)
 	}

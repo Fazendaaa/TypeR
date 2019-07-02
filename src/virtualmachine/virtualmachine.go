@@ -20,6 +20,11 @@ type VirtualMachine struct {
 	sp    int
 }
 
+// LastPoppedStackElement :
+func (vm *VirtualMachine) LastPoppedStackElement() object.Object {
+	return vm.stack[vm.sp]
+}
+
 // StackTop :
 func (vm *VirtualMachine) StackTop() object.Object {
 	if 0 == vm.sp {
@@ -74,6 +79,9 @@ func (vm *VirtualMachine) Run() error {
 			vm.push(&object.Integer{
 				Value: result,
 			})
+
+		case code.OpPop:
+			vm.pop()
 		}
 	}
 
