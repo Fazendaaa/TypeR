@@ -28,6 +28,7 @@ const (
 	OpBang
 	OpJumpNotTruthy
 	OpJump
+	OpNull
 )
 
 // Definition :
@@ -101,6 +102,10 @@ var definitions = map[Opcode]*Definition{
 		[]int{
 			2,
 		},
+	},
+	OpNull: {
+		"OpNull",
+		[]int{},
 	},
 }
 

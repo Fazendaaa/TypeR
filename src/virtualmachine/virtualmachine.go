@@ -21,6 +21,9 @@ var FALSE = &object.Boolean{
 	Value: false,
 }
 
+// NULL :
+var NULL = &object.Null{}
+
 // VirtualMachine :
 type VirtualMachine struct {
 	constants    []object.Object
@@ -44,6 +47,8 @@ func isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
 	case *object.Boolean:
 		return obj.Value
+	case *object.Null:
+		return false
 	default:
 		return true
 	}
@@ -168,6 +173,8 @@ func (vm *VirtualMachine) executeBangOperator() error {
 		return vm.push(FALSE)
 	case FALSE:
 		return vm.push(TRUE)
+	case NULL:
+		return vm.push(TRUE)
 	default:
 		return vm.push(FALSE)
 	}
@@ -261,6 +268,13 @@ func (vm *VirtualMachine) Run() error {
 
 			if !isTruthy(condition) {
 				ip = postion - 1
+			}
+
+		case code.OpNull:
+			err := vm.push(NULL)
+
+			if nil != err {
+				return err
 			}
 		}
 	}
