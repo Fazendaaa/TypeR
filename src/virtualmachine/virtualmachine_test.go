@@ -245,3 +245,39 @@ func TestBooleanExpressions(t *testing.T) {
 
 	runVirtualMachineTests(t, tests)
 }
+
+// TestConditionals :
+func TestConditionals(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			"if (TRUE) { 10 }",
+			10,
+		},
+		{
+			"if (TRUE) { 10 } else { 20 }",
+			10,
+		},
+		{
+			"if (FALSE) { 10 } else { 20 }",
+			20,
+		},
+		{
+			"if (1) { 10 }",
+			10,
+		},
+		{
+			"if (1 < 2) { 10 }",
+			10,
+		},
+		{
+			"if (1 < 2) { 10 } else { 20 }",
+			10,
+		},
+		{
+			"if (1 > 2) { 10 } else { 20 }",
+			20,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}

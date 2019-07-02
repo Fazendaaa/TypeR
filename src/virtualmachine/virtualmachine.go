@@ -39,6 +39,16 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 	return FALSE
 }
 
+// isTruthy :
+func isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case *object.Boolean:
+		return obj.Value
+	default:
+		return true
+	}
+}
+
 // LastPoppedStackElement :
 func (vm *VirtualMachine) LastPoppedStackElement() object.Object {
 	return vm.stack[vm.sp]
@@ -237,6 +247,20 @@ func (vm *VirtualMachine) Run() error {
 
 			if nil != err {
 				return err
+			}
+
+		case code.OpJump:
+			position := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip = position - 1
+
+		case code.OpJumpNotTruthy:
+			postion := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			condition := vm.pop()
+
+			if !isTruthy(condition) {
+				ip = postion - 1
 			}
 		}
 	}
