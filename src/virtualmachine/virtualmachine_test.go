@@ -117,6 +117,22 @@ func TestIntegerArithmetic(t *testing.T) {
 			"1 + 2",
 			3,
 		},
+		{
+			"-5",
+			-5,
+		},
+		{
+			"-10",
+			-10,
+		},
+		{
+			"-50 + 100 + -50",
+			0,
+		},
+		{
+			"(5 + 10 * 2 + 15 / 3) * 2 + -10",
+			50,
+		},
 	}
 
 	runVirtualMachineTests(t, tests)
@@ -199,6 +215,30 @@ func TestBooleanExpressions(t *testing.T) {
 		},
 		{
 			"(1 > 2) == FALSE",
+			true,
+		},
+		{
+			"!TRUE",
+			false,
+		},
+		{
+			"!FALSE",
+			true,
+		},
+		{
+			"!5",
+			false,
+		},
+		{
+			"!!TRUE",
+			true,
+		},
+		{
+			"!!FALSE",
+			false,
+		},
+		{
+			"!!5",
 			true,
 		},
 	}

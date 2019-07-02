@@ -149,6 +149,35 @@ func (vm *VirtualMachine) executeComparison(op code.Opcode) error {
 	}
 }
 
+// executeBangOperator :
+func (vm *VirtualMachine) executeBangOperator() error {
+	operand := vm.pop()
+
+	switch operand {
+	case TRUE:
+		return vm.push(FALSE)
+	case FALSE:
+		return vm.push(TRUE)
+	default:
+		return vm.push(FALSE)
+	}
+}
+
+// executeMinusOperator :
+func (vm *VirtualMachine) executeMinusOperator() error {
+	operand := vm.pop()
+
+	if object.INTEGER_OBJECT != operand.Type() {
+		return fmt.Errorf("unsupported type for negation: %s", operand.Type())
+	}
+
+	value := operand.(*object.Integer).Value
+
+	return vm.push(&object.Integer{
+		Value: -value,
+	})
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -196,6 +225,19 @@ func (vm *VirtualMachine) Run() error {
 				return err
 			}
 
+		case code.OpBang:
+			err := vm.executeBangOperator()
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpMinus:
+			err := vm.executeMinusOperator()
+
+			if nil != err {
+				return err
+			}
 		}
 	}
 
