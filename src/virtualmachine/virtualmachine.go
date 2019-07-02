@@ -11,6 +11,16 @@ import (
 // StackSize :
 const StackSize = 2048
 
+// TRUE :
+var TRUE = &object.Boolean{
+	Value: true,
+}
+
+// FALSE :
+var FALSE = &object.Boolean{
+	Value: false,
+}
+
 // VirtualMachine :
 type VirtualMachine struct {
 	constants    []object.Object
@@ -18,6 +28,15 @@ type VirtualMachine struct {
 
 	stack []object.Object
 	sp    int
+}
+
+// nativeBoolToBooleanObject :
+func nativeBoolToBooleanObject(input bool) *object.Boolean {
+	if input {
+		return TRUE
+	}
+
+	return FALSE
 }
 
 // LastPoppedStackElement :
@@ -54,6 +73,7 @@ func (vm *VirtualMachine) pop() object.Object {
 	return obj
 }
 
+// executeIntegerBinaryOperation :
 func (vm *VirtualMachine) executeIntegerBinaryOperation(op code.Opcode, left, right object.Object) error {
 	var result int64
 
@@ -93,6 +113,42 @@ func (vm *VirtualMachine) executeBinaryOperation(op code.Opcode) error {
 	return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
 }
 
+// executeIntegerComparisson :
+func (vm *VirtualMachine) executeIntegerComparisson(op code.Opcode, left, right object.Object) error {
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+
+	switch op {
+	case code.OpEqual:
+		return vm.push(nativeBoolToBooleanObject(rightValue == leftValue))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolToBooleanObject(rightValue != leftValue))
+	case code.OpGreaterThan:
+		return vm.push(nativeBoolToBooleanObject(leftValue > rightValue))
+	default:
+		return fmt.Errorf("unknown operator: %d", op)
+	}
+}
+
+// executeComparison :
+func (vm *VirtualMachine) executeComparison(op code.Opcode) error {
+	right := vm.pop()
+	left := vm.pop()
+
+	if object.INTEGER_OBJECT == left.Type() && object.INTEGER_OBJECT == right.Type() {
+		return vm.executeIntegerComparisson(op, left, right)
+	}
+
+	switch op {
+	case code.OpEqual:
+		return vm.push(nativeBoolToBooleanObject(right == left))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolToBooleanObject(right != left))
+	default:
+		return fmt.Errorf("unknown operator: %d %s %s", op, left.Type(), right.Type())
+	}
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -118,6 +174,28 @@ func (vm *VirtualMachine) Run() error {
 
 		case code.OpPop:
 			vm.pop()
+
+		case code.OpTrue:
+			err := vm.push(TRUE)
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpFalse:
+			err := vm.push(FALSE)
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan:
+			err := vm.executeComparison(op)
+
+			if nil != err {
+				return err
+			}
+
 		}
 	}
 

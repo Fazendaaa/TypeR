@@ -19,6 +19,11 @@ const (
 	OpSubtract
 	OpMultiply
 	OpDivide
+	OpTrue
+	OpFalse
+	OpEqual
+	OpNotEqual
+	OpGreaterThan
 )
 
 // Definition :
@@ -51,6 +56,26 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpDivide: {
 		"OpDivide",
+		[]int{},
+	},
+	OpTrue: {
+		"OpTrue",
+		[]int{},
+	},
+	OpFalse: {
+		"OpFalse",
+		[]int{},
+	},
+	OpEqual: {
+		"OpEqual",
+		[]int{},
+	},
+	OpNotEqual: {
+		"OpNotEqual",
+		[]int{},
+	},
+	OpGreaterThan: {
+		"OpGreaterThan",
 		[]int{},
 	},
 }
