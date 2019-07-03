@@ -8,6 +8,9 @@ import (
 	"../object"
 )
 
+// GlobalSize : 2 ^ 16 == 65536
+const GlobalSize = 65536
+
 // StackSize :
 const StackSize = 2048
 
@@ -31,6 +34,8 @@ type VirtualMachine struct {
 
 	stack []object.Object
 	sp    int
+
+	globals []object.Object
 }
 
 // nativeBoolToBooleanObject :
@@ -276,6 +281,22 @@ func (vm *VirtualMachine) Run() error {
 			if nil != err {
 				return err
 			}
+
+		case code.OpSetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+
+			vm.globals[globalIndex] = vm.pop()
+
+		case code.OpGetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+
+			err := vm.push(vm.globals[globalIndex])
+
+			if nil != err {
+				return err
+			}
 		}
 	}
 
@@ -290,5 +311,15 @@ func InitializeVirtualMachine(bytecode *compiler.Bytecode) *VirtualMachine {
 
 		stack: make([]object.Object, StackSize),
 		sp:    0,
+
+		globals: make([]object.Object, GlobalSize),
 	}
+}
+
+// InitializeWithGlobalStore :
+func InitializeWithGlobalStore(bytecode *compiler.Bytecode, s []object.Object) *VirtualMachine {
+	vm := InitializeVirtualMachine(bytecode)
+	vm.globals = s
+
+	return vm
 }

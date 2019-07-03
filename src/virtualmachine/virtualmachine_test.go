@@ -302,3 +302,23 @@ func TestConditionals(t *testing.T) {
 
 	runVirtualMachineTests(t, tests)
 }
+
+// TestGlobalLetStatements :
+func TestGlobalLetStatements(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			"let one <-  1; one",
+			1,
+		},
+		{
+			"let one <-  1; let two <- 2; one + two",
+			3,
+		},
+		{
+			"let one <-  1; let two <- one + one; one + two",
+			3,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}

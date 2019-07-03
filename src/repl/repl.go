@@ -7,6 +7,7 @@ import (
 
 	"../compiler"
 	"../lexer"
+	"../object"
 	"../parser"
 	"../virtualmachine"
 )
@@ -24,6 +25,9 @@ func printParseErrors(out io.Writer, errors []string) {
 // Start :
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	constants := []object.Object{}
+	globals := make([]object.Object, virtualmachine.GlobalSize)
+	symbolTable := compiler.InitializeSymbolTable()
 
 	for {
 		fmt.Printf(PROMPT)
@@ -45,7 +49,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.InitializeCompiler()
+		comp := compiler.InitializeWithState(symbolTable, constants)
 		err := comp.Compile(program)
 
 		if nil != err {
@@ -54,7 +58,10 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		machine := virtualmachine.InitializeVirtualMachine(comp.Bytecode())
+		code := comp.Bytecode()
+		constants = code.Constants
+
+		machine := virtualmachine.InitializeWithGlobalStore(code, globals)
 		err = machine.Run()
 
 		if nil != err {

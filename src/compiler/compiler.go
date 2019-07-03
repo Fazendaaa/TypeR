@@ -10,10 +10,13 @@ import (
 
 // Compiler :
 type Compiler struct {
-	instructions        code.Instructions
-	constants           []object.Object
+	instructions code.Instructions
+	constants    []object.Object
+
 	lastInstruction     EmittedInstruction
 	previousInstruction EmittedInstruction
+
+	symbolTable *SymbolTable
 }
 
 // Bytecode :
@@ -242,6 +245,26 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+
+	case *ast.LetStatement:
+		err := c.Compile(node.Value)
+
+		if nil != err {
+			return err
+		}
+
+		symbol := c.symbolTable.Define(node.Name.Value)
+
+		c.emit(code.OpSetGlobal, symbol.Index)
+
+	case *ast.Identifier:
+		symbol, ok := c.symbolTable.Resolve(node.Value)
+
+		if !ok {
+			return fmt.Errorf("undefined variable %s", node.Value)
+		}
+
+		c.emit(code.OpGetGlobal, symbol.Index)
 	}
 
 	return nil
@@ -262,5 +285,15 @@ func InitializeCompiler() *Compiler {
 		constants:           []object.Object{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
+		symbolTable:         InitializeSymbolTable(),
 	}
+}
+
+// InitializeWithState :
+func InitializeWithState(s *SymbolTable, constants []object.Object) *Compiler {
+	compiler := InitializeCompiler()
+	compiler.symbolTable = s
+	compiler.constants = constants
+
+	return compiler
 }
