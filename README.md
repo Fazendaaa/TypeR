@@ -219,6 +219,8 @@ Even if it does not have some of the practicalities of the functional paradigm l
   - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
   - Create a debuger tool
   - Create a testing package
+    - Add coverage builtin
+    - Add mutation test support to it
   - Support to [VS Code](https://code.visualstudio.com/) in:
     - Linter
     - Debuger
