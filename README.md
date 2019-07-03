@@ -233,7 +233,9 @@ Even if it does not have some of the practicalities of the functional paradigm l
   - Create code analyzer to perform duplicity analysis and other things just as [codeclimate](https://codeclimate.com/) already performs
   - Write another package to compile the TypeR code into [Julia](https://julialang.org/) code or/and Haskell itself
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
-- Once the language is stabilized, rewrite the basic packages of R in it and possibly compile them into machine code to gain performance.
+- Once the language is stabilized, rewrite the basic packages of R in it and possibly compile them into machine code to gain performance
+  - Also seek to see a way to distribute task execution on multiple machines similar to [Elixir's interactive shell.](https://hexdocs.pm/iex/IEx.html)
+  - Dream about ARM and RISC V
 - Much more
 
 These ideas are "more or less" organized in order of priority, even so it was decided not to order them because it will not necessarily be possible to do them in the proposed order.
@@ -272,3 +274,4 @@ As the idea is to actually leave this repository just for discussions related to
 - [Why Go Is Successful (aka Simplicity is Complicated)](https://youtu.be/k9Zbuuo51go)
 - [Lambda Calculus - Fundamentals of Lambda Calculus & Functional Programming in JavaScript](https://youtu.be/3VQ382QG-y4)
 - [Carl Meyer - Type-checked Python in the real world - PyCon 2018](https://youtu.be/pMgmKJyWKn8)
+- [Elixir: A Mini-Documentary (Official Release)](https://youtu.be/lxYFOM3UJzo)
