@@ -55,6 +55,21 @@ func testBooleanObject(expected bool, actual object.Object) error {
 	return nil
 }
 
+// testStringObject :
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+
+	if !ok {
+		return fmt.Errorf("object is not String, got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value, got =%q, want+%q", result.Value, expected)
+	}
+
+	return nil
+}
+
 // testExpectedObject :
 func testExpectedObject(t *testing.T, expected interface{}, actual object.Object) {
 	t.Helper()
@@ -78,6 +93,16 @@ func testExpectedObject(t *testing.T, expected interface{}, actual object.Object
 		if actual != NULL {
 			t.Errorf("object is not NULL: %T (%+v)", actual, actual)
 		}
+
+	case string:
+		err := testStringObject(expected, actual)
+
+		if nil != err {
+			t.Errorf("testStringObject failed: %s", err)
+		}
+
+	default:
+		t.Errorf("object not defined: %T (%+v)", actual, actual)
 	}
 }
 
@@ -317,6 +342,26 @@ func TestGlobalLetStatements(t *testing.T) {
 		{
 			"let one <-  1; let two <- one + one; one + two",
 			3,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestStringExpressions :
+func TestStringExpressions(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			`"foo"`,
+			"foo",
+		},
+		{
+			`"foo" + " bar"`,
+			"foo bar",
+		},
+		{
+			`"foo" + " bar" + " baz"`,
+			"foo bar baz",
 		},
 	}
 

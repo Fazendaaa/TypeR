@@ -69,6 +69,21 @@ func testIntegerObject(expected int64, actual object.Object) error {
 	return nil
 }
 
+// testStringObject :
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+
+	if !ok {
+		return fmt.Errorf("object is not String, got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value, got=%q, want=%q", result.Value, expected)
+	}
+
+	return nil
+}
+
 // testConstants :
 func testConstants(t *testing.T, expected []interface{}, actual []object.Object) error {
 	if len(expected) != len(actual) {
@@ -82,6 +97,12 @@ func testConstants(t *testing.T, expected []interface{}, actual []object.Object)
 
 			if nil != err {
 				return fmt.Errorf("constant %d - testInteger object failed: %s", index, err)
+			}
+		case string:
+			err := testStringObject(constant, actual[index])
+
+			if nil != err {
+				return fmt.Errorf("constant %d - testStringObject failed: %s", index, err)
 			}
 		}
 	}
@@ -420,6 +441,37 @@ func TestGlobalLetStatements(t *testing.T) {
 				code.Make(code.OpGetGlobal, 0),
 				code.Make(code.OpSetGlobal, 1),
 				code.Make(code.OpGetGlobal, 1),
+				code.Make(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
+
+// TestStringExpressions :
+func TestStringExpressions(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `"foo"`,
+			expectedConstants: []interface{}{
+				"foo",
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input: `"foo" + "bar"`,
+			expectedConstants: []interface{}{
+				"foo",
+				"bar",
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpAdd),
 				code.Make(code.OpPop),
 			},
 		},

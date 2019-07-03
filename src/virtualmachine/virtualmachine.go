@@ -118,6 +118,20 @@ func (vm *VirtualMachine) executeIntegerBinaryOperation(op code.Opcode, left, ri
 	})
 }
 
+// executeStringBinaryOperation :
+func (vm *VirtualMachine) executeStringBinaryOperation(op code.Opcode, left, right object.Object) error {
+	if code.OpAdd != op {
+		return fmt.Errorf("unknown string operator: %d", op)
+	}
+
+	leftValue := left.(*object.String).Value
+	rightValue := right.(*object.String).Value
+
+	return vm.push(&object.String{
+		Value: leftValue + rightValue,
+	})
+}
+
 // executeBinaryOperation :
 func (vm *VirtualMachine) executeBinaryOperation(op code.Opcode) error {
 	right := vm.pop()
@@ -126,11 +140,14 @@ func (vm *VirtualMachine) executeBinaryOperation(op code.Opcode) error {
 	leftType := left.Type()
 	rightType := right.Type()
 
-	if object.INTEGER_OBJECT == leftType && object.INTEGER_OBJECT == rightType {
+	switch {
+	case object.INTEGER_OBJECT == leftType && object.INTEGER_OBJECT == rightType:
 		return vm.executeIntegerBinaryOperation(op, left, right)
+	case object.STRING_OBJECT == leftType && object.STRING_OBJECT == rightType:
+		return vm.executeStringBinaryOperation(op, left, right)
+	default:
+		return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
 	}
-
-	return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
 }
 
 // executeIntegerComparisson :
