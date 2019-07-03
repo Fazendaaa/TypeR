@@ -212,6 +212,7 @@ Even if it does not have some of the practicalities of the functional paradigm l
 ## TODO
 
 - Right now? Everything, nothing is current working
+- Write a draft about the language itself
 - **MAYBE** add a way to link a Stack Overflow link to error messages in the VM -- this is a tip from a friend, thank you Lago
 - Create syntax support to render Markdown files
 - Tooling for TypeR:
