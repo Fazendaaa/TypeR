@@ -217,6 +217,19 @@ func (vm *VirtualMachine) executeMinusOperator() error {
 	})
 }
 
+// buildArray :
+func (vm *VirtualMachine) buildArray(startIndex, endIndex int) object.Object {
+	elements := make([]object.Object, endIndex-startIndex)
+
+	for index := startIndex; index < endIndex; index++ {
+		elements[index-startIndex] = vm.stack[index]
+	}
+
+	return &object.Array{
+		Elements: elements,
+	}
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -310,6 +323,16 @@ func (vm *VirtualMachine) Run() error {
 			ip += 2
 
 			err := vm.push(vm.globals[globalIndex])
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpArray:
+			numberElements := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+			array := vm.buildArray(vm.sp-numberElements, vm.sp)
+			err := vm.push(array)
 
 			if nil != err {
 				return err

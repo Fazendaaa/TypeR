@@ -101,6 +101,29 @@ func testExpectedObject(t *testing.T, expected interface{}, actual object.Object
 			t.Errorf("testStringObject failed: %s", err)
 		}
 
+	case []int:
+		array, ok := actual.(*object.Array)
+
+		if !ok {
+			t.Errorf("object not Array: %T (%+v)", actual, actual)
+
+			return
+		}
+
+		if len(array.Elements) != len(expected) {
+			t.Errorf("wrong number of elements, want=%d, got=%d", len(expected), len(array.Elements))
+
+			return
+		}
+
+		for index, expectedElement := range expected {
+			err := testIntegerObject(int64(expectedElement), array.Elements[index])
+
+			if nil != err {
+				t.Errorf("testIntegerObject failed: %s", err)
+			}
+		}
+
 	default:
 		t.Errorf("object not defined: %T (%+v)", actual, actual)
 	}
@@ -362,6 +385,34 @@ func TestStringExpressions(t *testing.T) {
 		{
 			`"foo" + " bar" + " baz"`,
 			"foo bar baz",
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestArrayLiterals :
+func TestArrayLiterals(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			"[]",
+			[]int{},
+		},
+		{
+			"[1, 2, 3]",
+			[]int{
+				1,
+				2,
+				3,
+			},
+		},
+		{
+			"[1 + 2, 3 * 4, 5 + 6]",
+			[]int{
+				3,
+				12,
+				11,
+			},
 		},
 	}
 
