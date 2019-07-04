@@ -230,6 +230,29 @@ func (vm *VirtualMachine) buildArray(startIndex, endIndex int) object.Object {
 	}
 }
 
+// executeArrayIndex :
+func (vm *VirtualMachine) executeArrayIndex(array, index object.Object) error {
+	arrayObject := array.(*object.Array)
+	postion := index.(*object.Integer).Value
+	max := int64(len(arrayObject.Elements) - 1)
+
+	if postion < 0 || postion > max {
+		return vm.push(NULL)
+	}
+
+	return vm.push(arrayObject.Elements[postion])
+}
+
+// executeIndexExpression :
+func (vm *VirtualMachine) executeIndexExpression(left, index object.Object) error {
+	switch {
+	case left.Type() == object.ARRAY_OBJECT && index.Type() == object.INTEGER_OBJECT:
+		return vm.executeArrayIndex(left, index)
+	default:
+		return fmt.Errorf("index operator not supported: %s", left.Type())
+	}
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	for ip := 0; ip < len(vm.instructions); ip++ {
@@ -337,6 +360,17 @@ func (vm *VirtualMachine) Run() error {
 			if nil != err {
 				return err
 			}
+
+		case code.OpIndex:
+			index := vm.pop()
+			left := vm.pop()
+
+			err := vm.executeIndexExpression(left, index)
+
+			if nil != err {
+				return err
+			}
+
 		}
 	}
 

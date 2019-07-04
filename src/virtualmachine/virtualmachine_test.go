@@ -418,3 +418,35 @@ func TestArrayLiterals(t *testing.T) {
 
 	runVirtualMachineTests(t, tests)
 }
+
+// TestIndexExpressions :
+func TestIndexExpressions(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			"[1, 2, 3][1]",
+			2,
+		},
+		{
+			"[1, 2, 3][0 + 2]",
+			3,
+		},
+		{
+			"[[1, 1, 1]][0][0]",
+			1,
+		},
+		{
+			"[][0]",
+			NULL,
+		},
+		{
+			"[1, 2, 3][99]",
+			NULL,
+		},
+		{
+			"[1][-1]",
+			NULL,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}

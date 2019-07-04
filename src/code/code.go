@@ -32,6 +32,7 @@ const (
 	OpGetGlobal
 	OpSetGlobal
 	OpArray
+	OpIndex
 )
 
 // Definition :
@@ -127,6 +128,10 @@ var definitions = map[Opcode]*Definition{
 		[]int{
 			2,
 		},
+	},
+	OpIndex: {
+		"OpIndex",
+		[]int{},
 	},
 }
 
