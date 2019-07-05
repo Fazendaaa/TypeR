@@ -36,6 +36,8 @@ const (
 	OpCall
 	OpReturnValue
 	OpReturn
+	OpGetLocal
+	OpSetLocal
 )
 
 // Definition :
@@ -148,6 +150,18 @@ var definitions = map[Opcode]*Definition{
 		"OpReturn",
 		[]int{},
 	},
+	OpGetLocal: {
+		"OpGetLocal",
+		[]int{
+			1,
+		},
+	},
+	OpSetLocal: {
+		"OpSetLocal",
+		[]int{
+			1,
+		},
+	},
 }
 
 // Lookup :
@@ -185,6 +199,8 @@ func Make(op Opcode, operands ...int) []byte {
 		switch width {
 		case 2:
 			binary.BigEndian.PutUint16(instruction[offset:], uint16(operand))
+		case 1:
+			instruction[offset] = byte(operand)
 		}
 
 		offset += width
@@ -198,6 +214,11 @@ func ReadUint16(instructions Instructions) uint16 {
 	return binary.BigEndian.Uint16(instructions)
 }
 
+// ReadUint8 :
+func ReadUint8(instructions Instructions) uint8 {
+	return uint8(instructions[0])
+}
+
 // ReadOperands :
 func ReadOperands(definition *Definition, instructions Instructions) ([]int, int) {
 	operands := make([]int, len(definition.OperandWidths))
@@ -207,6 +228,8 @@ func ReadOperands(definition *Definition, instructions Instructions) ([]int, int
 		switch width {
 		case 2:
 			operands[index] = int(ReadUint16(instructions[offset:]))
+		case 1:
+			operands[index] = int(ReadUint8(instructions[offset:]))
 		}
 
 		offset += width

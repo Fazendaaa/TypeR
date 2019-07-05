@@ -4,8 +4,8 @@ package compiler
 type SymbolScope string
 
 const (
-	// GlobalScope :
 	GlobalScope SymbolScope = "GLOBAL"
+	LocalScope  SymbolScope = "LOCAL"
 )
 
 // Symbol :
@@ -17,17 +17,10 @@ type Symbol struct {
 
 // SymbolTable :
 type SymbolTable struct {
+	Outer *SymbolTable
+
 	store             map[string]Symbol
 	numberDefinitions int
-}
-
-// InitializeSymbolTable :
-func InitializeSymbolTable() *SymbolTable {
-	s := make(map[string]Symbol)
-
-	return &SymbolTable{
-		store: s,
-	}
 }
 
 // Define :
@@ -35,7 +28,12 @@ func (s *SymbolTable) Define(name string) Symbol {
 	symbol := Symbol{
 		Name:  name,
 		Index: s.numberDefinitions,
-		Scope: GlobalScope,
+	}
+
+	if nil == s.Outer {
+		symbol.Scope = GlobalScope
+	} else {
+		symbol.Scope = LocalScope
 	}
 
 	s.store[name] = symbol
@@ -48,5 +46,27 @@ func (s *SymbolTable) Define(name string) Symbol {
 func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
 	obj, ok := s.store[name]
 
+	if !ok && nil != s.Outer {
+		obj, ok = s.Outer.Resolve(name)
+	}
+
 	return obj, ok
+}
+
+// InitializeSymbolTable :
+func InitializeSymbolTable() *SymbolTable {
+	s := make(map[string]Symbol)
+
+	return &SymbolTable{
+		store: s,
+	}
+}
+
+// InitializeEnclosedSymbolTable :
+func InitializeEnclosedSymbolTable(outer *SymbolTable) *SymbolTable {
+	s := InitializeSymbolTable()
+
+	s.Outer = outer
+
+	return s
 }
