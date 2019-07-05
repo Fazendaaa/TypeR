@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"../ast"
+	"../code"
 )
 
 // ObjectType :
@@ -15,15 +16,16 @@ type ObjectType string
 type BuiltinFunction func(arguments ...Object) Object
 
 const (
-	INTEGER_OBJECT      = "INTEGER"
-	BOOLEAN_OBJECT      = "BOOLEAN"
-	NULL_OBJECT         = "NULL"
-	RETURN_VALUE_OBJECT = "RETURN_VALUE"
-	ERROR_OBJECT        = "ERROR"
-	FUNCTION_OBJECT     = "FUNCTION"
-	STRING_OBJECT       = "STRING"
-	BUILTIN_OBJECT      = "BUILTIN"
-	ARRAY_OBJECT        = "ARRAY"
+	INTEGER_OBJECT           = "INTEGER"
+	BOOLEAN_OBJECT           = "BOOLEAN"
+	NULL_OBJECT              = "NULL"
+	RETURN_VALUE_OBJECT      = "RETURN_VALUE"
+	ERROR_OBJECT             = "ERROR"
+	FUNCTION_OBJECT          = "FUNCTION"
+	STRING_OBJECT            = "STRING"
+	BUILTIN_OBJECT           = "BUILTIN"
+	ARRAY_OBJECT             = "ARRAY"
+	COMPILED_FUNCTION_OBJECT = "COMPILED_FUNCTION_OBJECT"
 )
 
 // Object :
@@ -81,6 +83,11 @@ type Builtin struct {
 // Array :
 type Array struct {
 	Elements []Object
+}
+
+// CompiledFunction :
+type CompiledFunction struct {
+	Instructions code.Instructions
 }
 
 // Inspect :
@@ -201,4 +208,14 @@ func (a *Array) Inspect() string {
 	out.WriteString("]")
 
 	return out.String()
+}
+
+// Type :
+func (cf *CompiledFunction) Type() ObjectType {
+	return COMPILED_FUNCTION_OBJECT
+}
+
+// Inspect :
+func (cf *CompiledFunction) Inspect() string {
+	return fmt.Sprintf("CompiledFunction[%p]", cf)
 }

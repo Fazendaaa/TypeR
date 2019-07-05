@@ -450,3 +450,99 @@ func TestIndexExpressions(t *testing.T) {
 
 	runVirtualMachineTests(t, tests)
 }
+
+// TestCallingFunctionsWithoutParameters :
+func TestCallingFunctionsWithoutParameters(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let fivePlusTen <- function() { 5 + 10 }
+			fivePlusTen()
+			`,
+			expected: 15,
+		},
+		{
+			input: `
+			let first <- function() { 1 }
+			let second <- function() { 2 }
+			first() + second()
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+			let a <- function() { 1 }
+			let b <- function() { a() + 1 }
+			let c <- function() { b() + 1 }
+			c()
+			`,
+			expected: 3,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestFunctionsWithReturnStatement :
+func TestFunctionsWithReturnStatement(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let earlyExit <- function() { return 99; 100; }
+			earlyExit()
+			`,
+			expected: 99,
+		},
+		{
+			input: `
+			let earlyExit <- function() { return 99; return 100; }
+			earlyExit()
+			`,
+			expected: 99,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestFunctionsWithoutReturnValue :
+func TestFunctionsWithoutReturnValue(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let noReturn <- function() {}
+			noReturn()
+			`,
+			expected: NULL,
+		},
+		{
+			input: `
+			let noReturn <- function() {}
+			let noReturnAgain <- function() { noReturn() }
+
+			noReturn()
+			noReturnAgain()
+			`,
+			expected: NULL,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestFirstClassFunctions :
+func TestFirstClassFunctions(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let returnOne <- function() { 1 }
+			let returnOneReturner <- function() { returnOne }
+
+			returnOneReturner()()
+			`,
+			expected: 1,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}

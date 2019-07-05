@@ -14,6 +14,9 @@ const GlobalSize = 65536
 // StackSize :
 const StackSize = 2048
 
+// FrameSize :
+const FrameSize = 1024
+
 // TRUE :
 var TRUE = &object.Boolean{
 	Value: true,
@@ -29,13 +32,15 @@ var NULL = &object.Null{}
 
 // VirtualMachine :
 type VirtualMachine struct {
-	constants    []object.Object
-	instructions code.Instructions
+	constants []object.Object
 
 	stack []object.Object
 	sp    int
 
 	globals []object.Object
+
+	frames      []*Frame
+	framesIndex int
 }
 
 // nativeBoolToBooleanObject :
@@ -57,6 +62,24 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+// currentFrame :
+func (vm *VirtualMachine) currentFrame() *Frame {
+	return vm.frames[vm.framesIndex-1]
+}
+
+// pushFrame :
+func (vm *VirtualMachine) pushFrame(f *Frame) {
+	vm.frames[vm.framesIndex] = f
+	vm.framesIndex++
+}
+
+// popFrame :
+func (vm *VirtualMachine) popFrame() *Frame {
+	vm.framesIndex--
+
+	return vm.frames[vm.framesIndex]
 }
 
 // LastPoppedStackElement :
@@ -233,14 +256,14 @@ func (vm *VirtualMachine) buildArray(startIndex, endIndex int) object.Object {
 // executeArrayIndex :
 func (vm *VirtualMachine) executeArrayIndex(array, index object.Object) error {
 	arrayObject := array.(*object.Array)
-	postion := index.(*object.Integer).Value
+	position := index.(*object.Integer).Value
 	max := int64(len(arrayObject.Elements) - 1)
 
-	if postion < 0 || postion > max {
+	if position < 0 || position > max {
 		return vm.push(NULL)
 	}
 
-	return vm.push(arrayObject.Elements[postion])
+	return vm.push(arrayObject.Elements[position])
 }
 
 // executeIndexExpression :
@@ -255,13 +278,21 @@ func (vm *VirtualMachine) executeIndexExpression(left, index object.Object) erro
 
 // Run :
 func (vm *VirtualMachine) Run() error {
-	for ip := 0; ip < len(vm.instructions); ip++ {
-		op := code.Opcode(vm.instructions[ip])
+	var ip int
+	var instructions code.Instructions
+	var op code.Opcode
+
+	for vm.currentFrame().ip < len(vm.currentFrame().Instructions())-1 {
+		vm.currentFrame().ip++
+
+		ip = vm.currentFrame().ip
+		instructions = vm.currentFrame().Instructions()
+		op = code.Opcode(instructions[ip])
 
 		switch op {
 		case code.OpConstant:
-			constIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
+			constIndex := code.ReadUint16(instructions[ip+1:])
+			vm.currentFrame().ip += 2
 
 			err := vm.push(vm.constants[constIndex])
 
@@ -315,17 +346,17 @@ func (vm *VirtualMachine) Run() error {
 			}
 
 		case code.OpJump:
-			position := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip = position - 1
+			position := int(code.ReadUint16(instructions[ip+1:]))
+			vm.currentFrame().ip = position - 1
 
 		case code.OpJumpNotTruthy:
-			postion := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip += 2
+			position := int(code.ReadUint16(instructions[ip+1:]))
+			vm.currentFrame().ip += 2
 
 			condition := vm.pop()
 
 			if !isTruthy(condition) {
-				ip = postion - 1
+				vm.currentFrame().ip = position - 1
 			}
 
 		case code.OpNull:
@@ -336,14 +367,14 @@ func (vm *VirtualMachine) Run() error {
 			}
 
 		case code.OpSetGlobal:
-			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
+			globalIndex := code.ReadUint16(instructions[ip+1:])
+			vm.currentFrame().ip += 2
 
 			vm.globals[globalIndex] = vm.pop()
 
 		case code.OpGetGlobal:
-			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
+			globalIndex := code.ReadUint16(instructions[ip+1:])
+			vm.currentFrame().ip += 2
 
 			err := vm.push(vm.globals[globalIndex])
 
@@ -352,8 +383,9 @@ func (vm *VirtualMachine) Run() error {
 			}
 
 		case code.OpArray:
-			numberElements := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip += 2
+			numberElements := int(code.ReadUint16(instructions[ip+1:]))
+			vm.currentFrame().ip += 2
+
 			array := vm.buildArray(vm.sp-numberElements, vm.sp)
 			err := vm.push(array)
 
@@ -371,6 +403,38 @@ func (vm *VirtualMachine) Run() error {
 				return err
 			}
 
+		case code.OpCall:
+			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
+
+			if !ok {
+				return fmt.Errorf("calling non-function")
+			}
+
+			frame := InitializeFrame(fn)
+			vm.pushFrame(frame)
+
+		case code.OpReturnValue:
+			returnValue := vm.pop()
+
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(returnValue)
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpReturn:
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(NULL)
+
+			if nil != err {
+				return err
+			}
+
 		}
 	}
 
@@ -379,14 +443,24 @@ func (vm *VirtualMachine) Run() error {
 
 // InitializeVirtualMachine :
 func InitializeVirtualMachine(bytecode *compiler.Bytecode) *VirtualMachine {
+	mainFictional := &object.CompiledFunction{
+		Instructions: bytecode.Instructions,
+	}
+	mainFrame := InitializeFrame(mainFictional)
+
+	frames := make([]*Frame, FrameSize)
+	frames[0] = mainFrame
+
 	return &VirtualMachine{
-		instructions: bytecode.Instructions,
-		constants:    bytecode.Constants,
+		constants: bytecode.Constants,
 
 		stack: make([]object.Object, StackSize),
 		sp:    0,
 
 		globals: make([]object.Object, GlobalSize),
+
+		frames:      frames,
+		framesIndex: 1,
 	}
 }
 
