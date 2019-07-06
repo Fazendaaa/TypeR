@@ -382,7 +382,7 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 			return function
 		}
 
-		arguments := evalExpression(node.Arguments, environment)
+		arguments := evalExpression(node.Parameters, environment)
 
 		if 1 == len(arguments) && isError(arguments[0]) {
 			return arguments[0]
