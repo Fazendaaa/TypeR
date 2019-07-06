@@ -154,6 +154,18 @@ func (c *Compiler) changeOperand(opPosition int, operand int) {
 	c.replaceInstruction(opPosition, newInstruction)
 }
 
+// loadSymbol :
+func (c *Compiler) loadSymbol(symbol Symbol) {
+	switch symbol.Scope {
+	case GlobalScope:
+		c.emit(code.OpGetGlobal, symbol.Index)
+	case LocalScope:
+		c.emit(code.OpGetLocal, symbol.Index)
+	case BuiltinScope:
+		c.emit(code.OpGetBuiltin, symbol.Index)
+	}
+}
+
 // Compile :
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
@@ -328,11 +340,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return fmt.Errorf("undefined variable %s", node.Value)
 		}
 
-		if GlobalScope == symbol.Scope {
-			c.emit(code.OpGetGlobal, symbol.Index)
-		} else {
-			c.emit(code.OpGetLocal, symbol.Index)
-		}
+		c.loadSymbol(symbol)
 
 	case *ast.StringLiteral:
 		str := &object.String{
@@ -446,10 +454,16 @@ func InitializeCompiler() *Compiler {
 		previousInstruction: EmittedInstruction{},
 	}
 
+	symbolTable := InitializeSymbolTable()
+
+	for index, value := range object.Builtins {
+		symbolTable.DefineBuiltin(index, value.Name)
+	}
+
 	return &Compiler{
 		instructions: code.Instructions{},
 		constants:    []object.Object{},
-		symbolTable:  InitializeSymbolTable(),
+		symbolTable:  symbolTable,
 		scopes:       []CompilationsScope{mainScope},
 		scopeIndex:   0,
 	}

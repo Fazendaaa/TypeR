@@ -124,6 +124,19 @@ func testExpectedObject(t *testing.T, expected interface{}, actual object.Object
 			}
 		}
 
+	case *object.Error:
+		errorObject, ok := actual.(*object.Error)
+
+		if !ok {
+			t.Errorf("object is not Error: %T (%+v)", actual, actual)
+
+			return
+		}
+
+		if errorObject.Message != expected.Message {
+			t.Errorf("wrong error message, expected=%q, got=%q", expected.Message, errorObject.Message)
+		}
+
 	default:
 		t.Errorf("object not defined: %T (%+v)", actual, actual)
 	}
@@ -728,4 +741,113 @@ func TestCallingFunctionsWithWrongParameters(t *testing.T) {
 			t.Fatalf("wrong Virtual Machine error: want=%q, got=%q", tt.expected, err)
 		}
 	}
+}
+
+// TestBuiltinFunctions :
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			`len("")`,
+			0,
+		},
+		{
+			`len("four")`,
+			4,
+		},
+		{
+			`len("hello, world")`,
+			12,
+		},
+		{
+			`len(1)`,
+			&object.Error{
+				Message: "parameters to `len` not supported, got=INTEGER",
+			},
+		},
+		{
+			`len("one", "two")`,
+			&object.Error{
+				Message: "wrong number of parameters, got=2, want=1",
+			},
+		},
+		{
+			`len([])`,
+			0,
+		},
+		// {
+		// 	`len([1, 2, 3])`,
+		// 	3,
+		// },
+		{
+			`puts("hello", "world!")`,
+			NULL,
+		},
+		// {
+		// 	`head([1, 2, 3])`,
+		// 	1,
+		// },
+		{
+			`head([])`,
+			NULL,
+		},
+		{
+			`head(1)`,
+			&object.Error{
+				Message: "parameter to `head` must be ARRAY, got INTEGER",
+			},
+		},
+		// {
+		// 	`last([1, 2, 3])`,
+		// 	3,
+		// },
+		{
+			`last([])`,
+			NULL,
+		},
+		{
+			`last(1)`,
+			&object.Error{
+				Message: "parameter to `last` must be ARRAY, got INTEGER",
+			},
+		},
+		{
+			`tail([1, 2, 3])`,
+			[]int{
+				2,
+				3,
+			},
+		},
+		{
+			`tail([])`,
+			NULL,
+		},
+		{
+			`tail(1)`,
+			&object.Error{
+				Message: "parameter to `tail` must be ARRAY, got INTEGER",
+			},
+		},
+		// {
+		// 	`push([1, 2], 3)`,
+		// 	[]int{
+		// 		1,
+		// 		2,
+		// 		3,
+		// 	},
+		// },
+		// {
+		// 	`push([], 1)`,
+		// 	[]int{
+		// 		1,
+		// 	},
+		// },
+		{
+			`push(1, 1)`,
+			&object.Error{
+				Message: "parameter to `push` must be ARRAY, got INTEGER",
+			},
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
 }

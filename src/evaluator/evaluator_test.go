@@ -593,11 +593,11 @@ func TestBuiltinFunction(t *testing.T) {
 		},
 		{
 			`len(1)`,
-			"argument to `len` not supported, got INTEGER",
+			"parameters to `len` not supported, got=INTEGER",
 		},
 		{
 			`len("one", "two")`,
-			"wrong number of parameters, got=2, expected=1",
+			"wrong number of parameters, got=2, want=1",
 		},
 	}
 

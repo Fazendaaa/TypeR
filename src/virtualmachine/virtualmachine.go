@@ -277,13 +277,7 @@ func (vm *VirtualMachine) executeIndexExpression(left, index object.Object) erro
 }
 
 // callFunction :
-func (vm *VirtualMachine) callFunction(numberOfParameters int) error {
-	fn, ok := vm.stack[vm.sp-1-numberOfParameters].(*object.CompiledFunction)
-
-	if !ok {
-		return fmt.Errorf("calling non-function")
-	}
-
+func (vm *VirtualMachine) callFunction(fn *object.CompiledFunction, numberOfParameters int) error {
 	if numberOfParameters != fn.NumberOfParameters {
 		return fmt.Errorf("wrong number of parameters: want=%d, got=%d", fn.NumberOfParameters, numberOfParameters)
 	}
@@ -294,6 +288,37 @@ func (vm *VirtualMachine) callFunction(numberOfParameters int) error {
 	vm.sp = frame.basePointer + fn.NumberOfLocals
 
 	return nil
+}
+
+// callBuiltin :
+func (vm *VirtualMachine) callBuiltin(builtin *object.Builtin, numberOfParameters int) error {
+	parameters := vm.stack[vm.sp-numberOfParameters : vm.sp]
+	result := builtin.Fn(parameters...)
+	vm.sp = vm.sp - numberOfParameters - 1
+
+	if nil != result {
+		vm.push(result)
+	} else {
+		vm.push(NULL)
+	}
+
+	return nil
+}
+
+// exectueCall :
+func (vm *VirtualMachine) exectueCall(numberOfParameters int) error {
+	callee := vm.stack[vm.sp-1-numberOfParameters]
+
+	// fmt.Println(callee)
+
+	switch calleeType := callee.(type) {
+	case *object.CompiledFunction:
+		return vm.callFunction(calleeType, numberOfParameters)
+	case *object.Builtin:
+		return vm.callBuiltin(calleeType, numberOfParameters)
+	default:
+		return fmt.Errorf("calling a non-function and non-built-in")
+	}
 }
 
 // Run :
@@ -428,7 +453,7 @@ func (vm *VirtualMachine) Run() error {
 
 			vm.currentFrame().ip++
 
-			err := vm.callFunction(int(numberOfParameters))
+			err := vm.exectueCall(int(numberOfParameters))
 
 			if nil != err {
 				return err
@@ -471,6 +496,19 @@ func (vm *VirtualMachine) Run() error {
 			frame := vm.currentFrame()
 
 			err := vm.push(vm.stack[frame.basePointer+int(localIndex)])
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpGetBuiltin:
+			builtinIndex := code.ReadUint8(instructions[ip+1:])
+
+			vm.currentFrame().ip++
+
+			definition := object.Builtins[builtinIndex]
+
+			err := vm.push(definition.Builtin)
 
 			if nil != err {
 				return err

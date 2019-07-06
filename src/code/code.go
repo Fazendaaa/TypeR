@@ -38,6 +38,7 @@ const (
 	OpReturn
 	OpGetLocal
 	OpSetLocal
+	OpGetBuiltin
 )
 
 // Definition :
@@ -160,6 +161,12 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpSetLocal: {
 		"OpSetLocal",
+		[]int{
+			1,
+		},
+	},
+	OpGetBuiltin: {
+		"OpGetBuiltin",
 		[]int{
 			1,
 		},
