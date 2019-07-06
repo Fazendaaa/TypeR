@@ -275,3 +275,4 @@ As the idea is to actually leave this repository just for discussions related to
 - [Lambda Calculus - Fundamentals of Lambda Calculus & Functional Programming in JavaScript](https://youtu.be/3VQ382QG-y4)
 - [Carl Meyer - Type-checked Python in the real world - PyCon 2018](https://youtu.be/pMgmKJyWKn8)
 - [Elixir: A Mini-Documentary (Official Release)](https://youtu.be/lxYFOM3UJzo)
+- [GopherCon 2016: Rob Pike - The Design of the Go Assembler](https://youtu.be/KINIAgRpkDA)
