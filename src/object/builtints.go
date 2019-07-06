@@ -142,7 +142,7 @@ var Builtins = []struct {
 
 				newElements := make([]Object, length+1, length+1)
 
-				copy(newElements, arr.Elements[1:length])
+				copy(newElements, arr.Elements[0:length])
 
 				newElements[length] = parameters[1]
 

@@ -774,18 +774,18 @@ func TestBuiltinFunctions(t *testing.T) {
 			`len([])`,
 			0,
 		},
-		// {
-		// 	`len([1, 2, 3])`,
-		// 	3,
-		// },
+		{
+			`len([1, 2, 3])`,
+			3,
+		},
 		{
 			`puts("hello", "world!")`,
 			NULL,
 		},
-		// {
-		// 	`head([1, 2, 3])`,
-		// 	1,
-		// },
+		{
+			`head([1, 2, 3])`,
+			1,
+		},
 		{
 			`head([])`,
 			NULL,
@@ -796,10 +796,10 @@ func TestBuiltinFunctions(t *testing.T) {
 				Message: "parameter to `head` must be ARRAY, got INTEGER",
 			},
 		},
-		// {
-		// 	`last([1, 2, 3])`,
-		// 	3,
-		// },
+		{
+			`last([1, 2, 3])`,
+			3,
+		},
 		{
 			`last([])`,
 			NULL,
@@ -827,20 +827,20 @@ func TestBuiltinFunctions(t *testing.T) {
 				Message: "parameter to `tail` must be ARRAY, got INTEGER",
 			},
 		},
-		// {
-		// 	`push([1, 2], 3)`,
-		// 	[]int{
-		// 		1,
-		// 		2,
-		// 		3,
-		// 	},
-		// },
-		// {
-		// 	`push([], 1)`,
-		// 	[]int{
-		// 		1,
-		// 	},
-		// },
+		{
+			`push([1, 2], 3)`,
+			[]int{
+				1,
+				2,
+				3,
+			},
+		},
+		{
+			`push([], 1)`,
+			[]int{
+				1,
+			},
+		},
 		{
 			`push(1, 1)`,
 			&object.Error{

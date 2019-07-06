@@ -432,6 +432,8 @@ func (vm *VirtualMachine) Run() error {
 			vm.currentFrame().ip += 2
 
 			array := vm.buildArray(vm.sp-numberElements, vm.sp)
+			vm.sp = vm.sp - numberElements
+
 			err := vm.push(array)
 
 			if nil != err {
