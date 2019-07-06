@@ -12,26 +12,7 @@ func wrongArgumentsError(size int) object.Object {
 }
 
 var builtins = map[string]*object.Builtin{
-	"len": &object.Builtin{
-		Fn: func(arguments ...object.Object) object.Object {
-			if 1 != len(arguments) {
-				return wrongArgumentsError(len(arguments))
-			}
-
-			switch argument := arguments[0].(type) {
-			case *object.String:
-				return &object.Integer{
-					Value: int64(len(argument.Value)),
-				}
-			case *object.Array:
-				return &object.Integer{
-					Value: int64(len(argument.Elements)),
-				}
-			default:
-				return newError("argument to `len` not supported, got %s", arguments[0].Type())
-			}
-		},
-	},
+	"len": object.GetBuiltinByName("len"),
 	"first": &object.Builtin{
 		Fn: func(arguments ...object.Object) object.Object {
 			if 1 != len(arguments) {
