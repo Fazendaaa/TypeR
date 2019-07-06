@@ -7,8 +7,9 @@ import (
 
 // Frame :
 type Frame struct {
-	fn *object.CompiledFunction
-	ip int
+	fn          *object.CompiledFunction
+	ip          int
+	basePointer int
 }
 
 // Instructions :
@@ -17,9 +18,10 @@ func (f *Frame) Instructions() code.Instructions {
 }
 
 // InitializeFrame :
-func InitializeFrame(fn *object.CompiledFunction) *Frame {
+func InitializeFrame(fn *object.CompiledFunction, basePointer int) *Frame {
 	return &Frame{
-		fn: fn,
-		ip: -1,
+		fn:          fn,
+		ip:          -1,
+		basePointer: basePointer,
 	}
 }

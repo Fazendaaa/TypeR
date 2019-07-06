@@ -120,9 +120,9 @@ type FunctionLiteral struct {
 
 // CallExpression :
 type CallExpression struct {
-	Token     token.Token
-	Function  Expression
-	Arguments []Expression
+	Token      token.Token
+	Function   Expression
+	Parameters []Expression
 }
 
 // StringLiteral :
@@ -397,15 +397,15 @@ func (ce *CallExpression) TokenLiteral() string {
 func (ce *CallExpression) String() string {
 	var out bytes.Buffer
 
-	arguments := []string{}
+	parameters := []string{}
 
-	for _, a := range ce.Arguments {
-		arguments = append(arguments, a.String())
+	for _, parameter := range ce.Parameters {
+		parameters = append(parameters, parameter.String())
 	}
 
 	out.WriteString(ce.Function.String())
 	out.WriteString("(")
-	out.WriteString(strings.Join(arguments, ", "))
+	out.WriteString(strings.Join(parameters, ", "))
 	out.WriteString(")")
 
 	return out.String()

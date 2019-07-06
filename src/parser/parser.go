@@ -474,7 +474,7 @@ func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 		Token:    p.currentToken,
 		Function: function,
 	}
-	expression.Arguments = p.parseExpressionList(token.RIGHT_PARENTHESIS)
+	expression.Parameters = p.parseExpressionList(token.RIGHT_PARENTHESIS)
 
 	return expression
 }

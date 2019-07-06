@@ -370,6 +370,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.FunctionLiteral:
 		c.enterScope()
 
+		for _, parameter := range node.Parameters {
+			c.symbolTable.Define(parameter.Value)
+		}
+
 		err := c.Compile(node.Body)
 
 		if nil != err {
@@ -384,10 +388,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 
+		numberOfLocals := c.symbolTable.numberDefinitions
 		instructions := c.leaveScope()
 
 		compiledFn := &object.CompiledFunction{
-			Instructions: instructions,
+			Instructions:       instructions,
+			NumberOfLocals:     numberOfLocals,
+			NumberOfParameters: len(node.Parameters),
 		}
 
 		c.emit(code.OpConstant, c.addConstant(compiledFn))
@@ -408,7 +415,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		c.emit(code.OpCall)
+		for _, parameter := range node.Parameters {
+			err := c.Compile(parameter)
+
+			if nil != err {
+				return err
+			}
+		}
+
+		c.emit(code.OpCall, len(node.Parameters))
 
 	}
 

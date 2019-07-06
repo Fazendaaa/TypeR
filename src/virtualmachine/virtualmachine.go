@@ -276,6 +276,26 @@ func (vm *VirtualMachine) executeIndexExpression(left, index object.Object) erro
 	}
 }
 
+// callFunction :
+func (vm *VirtualMachine) callFunction(numberOfParameters int) error {
+	fn, ok := vm.stack[vm.sp-1-numberOfParameters].(*object.CompiledFunction)
+
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+
+	if numberOfParameters != fn.NumberOfParameters {
+		return fmt.Errorf("wrong number of parameters: want=%d, got=%d", fn.NumberOfParameters, numberOfParameters)
+	}
+
+	frame := InitializeFrame(fn, vm.sp-numberOfParameters)
+	vm.pushFrame(frame)
+
+	vm.sp = frame.basePointer + fn.NumberOfLocals
+
+	return nil
+}
+
 // Run :
 func (vm *VirtualMachine) Run() error {
 	var ip int
@@ -404,20 +424,21 @@ func (vm *VirtualMachine) Run() error {
 			}
 
 		case code.OpCall:
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
+			numberOfParameters := code.ReadUint8(instructions[ip+1:])
 
-			if !ok {
-				return fmt.Errorf("calling non-function")
+			vm.currentFrame().ip++
+
+			err := vm.callFunction(int(numberOfParameters))
+
+			if nil != err {
+				return err
 			}
-
-			frame := InitializeFrame(fn)
-			vm.pushFrame(frame)
 
 		case code.OpReturnValue:
 			returnValue := vm.pop()
 
-			vm.popFrame()
-			vm.pop()
+			frame := vm.popFrame()
+			vm.sp = frame.basePointer - 1
 
 			err := vm.push(returnValue)
 
@@ -426,10 +447,30 @@ func (vm *VirtualMachine) Run() error {
 			}
 
 		case code.OpReturn:
-			vm.popFrame()
-			vm.pop()
+			frame := vm.popFrame()
+			vm.sp = frame.basePointer - 1
 
 			err := vm.push(NULL)
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpSetLocal:
+			localIndex := code.ReadUint8(instructions[ip+1:])
+			vm.currentFrame().ip++
+
+			frame := vm.currentFrame()
+
+			vm.stack[frame.basePointer+int(localIndex)] = vm.pop()
+
+		case code.OpGetLocal:
+			localIndex := code.ReadUint8(instructions[ip+1:])
+			vm.currentFrame().ip++
+
+			frame := vm.currentFrame()
+
+			err := vm.push(vm.stack[frame.basePointer+int(localIndex)])
 
 			if nil != err {
 				return err
@@ -446,7 +487,7 @@ func InitializeVirtualMachine(bytecode *compiler.Bytecode) *VirtualMachine {
 	mainFictional := &object.CompiledFunction{
 		Instructions: bytecode.Instructions,
 	}
-	mainFrame := InitializeFrame(mainFictional)
+	mainFrame := InitializeFrame(mainFictional, 0)
 
 	frames := make([]*Frame, FrameSize)
 	frames[0] = mainFrame

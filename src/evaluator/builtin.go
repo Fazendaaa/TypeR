@@ -8,7 +8,7 @@ import (
 
 // wrongArgumentsError :
 func wrongArgumentsError(size int) object.Object {
-	return newError("wrong number of arguments, got=%d, expected=1", size)
+	return newError("wrong number of parameters, got=%d, expected=1", size)
 }
 
 var builtins = map[string]*object.Builtin{

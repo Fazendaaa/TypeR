@@ -597,7 +597,7 @@ func TestBuiltinFunction(t *testing.T) {
 		},
 		{
 			`len("one", "two")`,
-			"wrong number of arguments, got=2, expected=1",
+			"wrong number of parameters, got=2, expected=1",
 		},
 	}
 

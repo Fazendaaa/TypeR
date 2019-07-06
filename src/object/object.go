@@ -87,7 +87,9 @@ type Array struct {
 
 // CompiledFunction :
 type CompiledFunction struct {
-	Instructions code.Instructions
+	Instructions       code.Instructions
+	NumberOfLocals     int
+	NumberOfParameters int
 }
 
 // Inspect :

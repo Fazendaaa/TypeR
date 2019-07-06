@@ -546,3 +546,186 @@ func TestFirstClassFunctions(t *testing.T) {
 
 	runVirtualMachineTests(t, tests)
 }
+
+// TestCallingFunctionsWithBindings :
+func TestCallingFunctionsWithBindings(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let one <- function() { let one <- 1; one }
+			one()
+			`,
+			expected: 1,
+		},
+		{
+			input: `
+			let oneAndTwo <- function() { let one <- 1; let two <- 2; one + two }
+			oneAndTwo()
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+			let oneAndTwo <- function() { let one <- 1; let two <- 2; one + two }
+			let threeAndFour <- function() { let three <- 3; let four <- 4; three + four }
+			oneAndTwo() + threeAndFour()
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+			let firstFoo <- function() { let foo <- 50; foo }
+			let secondFoo <- function() { let foo <- 100; foo }
+			firstFoo() + secondFoo()
+			`,
+			expected: 150,
+		},
+		{
+			input: `
+			let firstFoo <- function() { let foo <- 50; foo }
+			let secondFoo <- function() { let foo <- 100; foo }
+			firstFoo() + secondFoo()
+			`,
+			expected: 150,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestFirsClassFunctions :
+func TestFirsClassFunctions(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let returnOneReturns <- function() {
+				let returnOne <- function() {
+					1
+				}
+
+				returnOne
+			}
+			
+			returnOneReturns()()
+			`,
+			expected: 1,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestCallingFunctionsWithParametersAndBindings :
+func TestCallingFunctionsWithParametersAndBindings(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let identity <- function(a) { a }
+			identity(4)
+			`,
+			expected: 4,
+		},
+		{
+			input: `
+			let sum <- function(a, b) { a + b }
+			sum(1, 2)
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+			let sum <- function(a, b) {
+				let c <- a + b;
+				c;
+			}
+			sum(1, 2)
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+			let sum <- function(a, b) {
+				let c <- a + b;
+				c;
+			}
+			sum(1, 2) + sum(3, 4);
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+			let sum <- function(a, b) {
+				let c <- a + b;
+				c;
+			}
+
+			let outer <- function() {
+				sum(1, 2) + sum(3, 4)
+			}
+
+			outer();
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+			let globalNumber <- 10;
+
+			let sum <- function(a, b) {
+				let c <- a + b;
+
+				c + globalNumber;
+			}
+
+			let outer <- function() {
+				sum(1, 2) + sum(3, 4) + globalNumber
+			}
+
+			outer() + globalNumber;
+			`,
+			expected: 50,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestCallingFunctionsWithWrongParameters :
+func TestCallingFunctionsWithWrongParameters(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input:    `function() { 1 }(1)`,
+			expected: `wrong number of parameters: want=0, got=1`,
+		},
+		{
+			input:    `function(a) { a }()`,
+			expected: `wrong number of parameters: want=1, got=0`,
+		},
+		{
+			input:    `function(a, b) { a + b }(1)`,
+			expected: `wrong number of parameters: want=2, got=1`,
+		},
+	}
+
+	for _, tt := range tests {
+		program := parse(tt.input)
+
+		comp := compiler.InitializeCompiler()
+		err := comp.Compile(program)
+
+		if nil != err {
+			t.Fatalf("compiler error: %s", err)
+		}
+
+		vm := InitializeVirtualMachine(comp.Bytecode())
+		err = vm.Run()
+
+		if nil == err {
+			t.Fatalf("expected Virtual Machine error but resulted in none.")
+		}
+
+		if err.Error() != tt.expected {
+			t.Fatalf("wrong Virtual Machine error: want=%q, got=%q", tt.expected, err)
+		}
+	}
+}
