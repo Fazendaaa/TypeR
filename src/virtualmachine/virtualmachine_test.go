@@ -155,6 +155,22 @@ func runVirtualMachineTests(t *testing.T, tests []virtualMachineTestCase) {
 			t.Fatalf("compiler error: %s", err)
 		}
 
+		//
+		// Debug propurses
+		//
+		// for index, constant := range comp.Bytecode().Constants {
+		// 	fmt.Printf("CONSTANT %d %p (%T):\n", index, constant, constant)
+
+		// 	switch constantType := constant.(type) {
+		// 	case *object.CompiledFunction:
+		// 		fmt.Printf(" Instructions:\n%s", constantType.Instructions)
+		// 	case *object.Integer:
+		// 		fmt.Printf(" Value: %d\n", constantType.Value)
+		// 	}
+
+		// 	fmt.Printf("\n")
+		// }
+
 		virtualMachine := InitializeVirtualMachine(comp.Bytecode())
 		err = virtualMachine.Run()
 
@@ -846,6 +862,203 @@ func TestBuiltinFunctions(t *testing.T) {
 			&object.Error{
 				Message: "parameter to `push` must be ARRAY, got INTEGER",
 			},
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestClosures :
+func TestClosures(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let newClosure <- function(a) {
+				function() {
+					a;
+				};
+			};
+
+			let closure <- newClosure(99);
+
+			closure();
+			`,
+			expected: 99,
+		},
+		{
+			input: `
+			let newAdder <- function(a, b) {
+				function(c) {
+					a + b + c;
+				};
+			};
+
+			let adder <- newAdder(1, 2);
+
+			adder(3);
+			`,
+			expected: 6,
+		},
+		{
+			input: `
+			let newAdder <- function(a, b) {
+				let c <- a + b
+
+				function(d) {
+					c + d;
+				};
+			};
+
+			let adder <- newAdder(1, 2);
+
+			adder(3);
+			`,
+			expected: 6,
+		},
+		{
+			input: `
+			let newAdderOuter <- function(a, b) {
+				let c <- a + b;
+
+				function(d) {
+					let e <- c + d;
+
+					function(f) {
+						e + f;
+					};
+				};
+			};
+
+			let newAdderInner <- newAdderOuter(1, 2);
+			let adder <- newAdderInner(3);
+
+			adder(4);
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+			let a <- 1;
+
+			let newAdderOuter <- function(b) {
+				function(c) {
+					function(d) {
+						a+ b + c + d;
+					};
+				};
+			};
+
+			let newAdderInner <- newAdderOuter(2);
+			let adder <- newAdderInner(3);
+
+			adder(4);
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+			let newClosure <- function(a, b) {
+				let one <- function() {
+					a;
+				}
+				let two <- function() {
+					b;
+				}
+
+				function() {
+					one() + two();
+				}
+			}
+
+			let closure <- newClosure(1, 9)
+
+			closure()
+			`,
+			expected: 10,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestRecursiveClosures :
+func TestRecursiveClosures(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let countDown <- function(x) {
+				if (0 == x) {
+					return 0;
+				} 
+
+				countDown(x - 1);
+			};
+
+			countDown(1);
+			`,
+			expected: 0,
+		},
+		{
+			input: `
+			let countDown <- function(x) {
+				if (0 == x) {
+					return 0;
+				} 
+
+				countDown(x - 1);
+			};
+
+			let wrapper <- function() {
+				countDown(1);
+			}
+
+			wrapper();
+			`,
+			expected: 0,
+		},
+		{
+			input: `
+			let wrapper <- function() {
+				let countDown <- function(x) {
+					if (0 == x) {
+						return 0;
+					} 
+	
+					countDown(x - 1);
+				};
+
+				countDown(1);
+			}
+
+			wrapper();
+			`,
+			expected: 0,
+		},
+	}
+
+	runVirtualMachineTests(t, tests)
+}
+
+// TestRecursiveFibonacci :
+func TestRecursiveFibonacci(t *testing.T) {
+	tests := []virtualMachineTestCase{
+		{
+			input: `
+			let fibonacci <- function(x) {
+				if (0 == x) {
+					return 0
+				} else {
+					if (1 == x) {
+						return 1
+					} else {
+						fibonacci(x - 1) + fibonacci(x -2)
+					}
+				}
+			}
+
+			fibonacci(15)
+			`,
+			expected: 610,
 		},
 	}
 

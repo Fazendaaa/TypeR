@@ -991,3 +991,34 @@ func TestParsingIndexExpressions(t *testing.T) {
 		return
 	}
 }
+
+// TestFunctionLiteralWithName :
+func TestFunctionLiteralWithName(t *testing.T) {
+	input := `let myFunction <- function() {}`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	if 1 != len(program.Statements) {
+		t.Fatalf("program.Body does not contain %d statements, got=%d\n", 1, len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.LetStatement)
+
+	if !ok {
+		t.Fatalf("program.Statement[0] is not ast.LetStatement, got=%T", program.Statements[0])
+	}
+
+	function, ok := statement.Value.(*ast.FunctionLiteral)
+
+	if !ok {
+		t.Fatalf("statement.Value is not ast.FunctionLiteral, got=%T", statement.Value)
+	}
+
+	if "myFunction" != function.Name {
+		t.Fatalf("function.Name is not '%s', got=%s", "myFunction", function.Name)
+	}
+}

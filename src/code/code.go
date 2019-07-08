@@ -39,6 +39,9 @@ const (
 	OpGetLocal
 	OpSetLocal
 	OpGetBuiltin
+	OpClosure
+	OpGetFreeVariable
+	OpCurrentClosure
 )
 
 // Definition :
@@ -171,6 +174,43 @@ var definitions = map[Opcode]*Definition{
 			1,
 		},
 	},
+	OpClosure: {
+		"OpClosure",
+		[]int{
+			2,
+			1,
+		},
+	},
+	OpGetFreeVariable: {
+		"OpGetFreeVariable",
+		[]int{
+			1,
+		},
+	},
+	OpCurrentClosure: {
+		"OpCurrentClosure",
+		[]int{},
+	},
+}
+
+// fmtInstruction :
+func (i Instructions) fmtInstruction(definition *Definition, operands []int) string {
+	operandCount := len(definition.OperandWidths)
+
+	if len(operands) != operandCount {
+		return fmt.Sprintf("ERROR: operand len %d does not match defined %d\n", len(operands), operandCount)
+	}
+
+	switch operandCount {
+	case 0:
+		return definition.Name
+	case 1:
+		return fmt.Sprintf("%s %d", definition.Name, operands[0])
+	case 2:
+		return fmt.Sprintf("%s %d %d", definition.Name, operands[0], operands[1])
+	}
+
+	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", definition.Name)
 }
 
 // Lookup :
@@ -245,24 +285,6 @@ func ReadOperands(definition *Definition, instructions Instructions) ([]int, int
 	}
 
 	return operands, offset
-}
-
-// fmtInstruction :
-func (i Instructions) fmtInstruction(definition *Definition, operands []int) string {
-	operandCount := len(definition.OperandWidths)
-
-	if len(operands) != operandCount {
-		return fmt.Sprintf("ERROR: operand len %d does not match defined %d\n", len(operands), operandCount)
-	}
-
-	switch operandCount {
-	case 0:
-		return definition.Name
-	case 1:
-		return fmt.Sprintf("%s %d", definition.Name, operands[0])
-	}
-
-	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", definition.Name)
 }
 
 // String :

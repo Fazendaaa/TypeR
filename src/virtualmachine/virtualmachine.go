@@ -276,16 +276,16 @@ func (vm *VirtualMachine) executeIndexExpression(left, index object.Object) erro
 	}
 }
 
-// callFunction :
-func (vm *VirtualMachine) callFunction(fn *object.CompiledFunction, numberOfParameters int) error {
-	if numberOfParameters != fn.NumberOfParameters {
-		return fmt.Errorf("wrong number of parameters: want=%d, got=%d", fn.NumberOfParameters, numberOfParameters)
+// callClosure :
+func (vm *VirtualMachine) callClosure(cl *object.Closure, numberOfParameters int) error {
+	if numberOfParameters != cl.Fn.NumberOfParameters {
+		return fmt.Errorf("wrong number of parameters: want=%d, got=%d", cl.Fn.NumberOfParameters, numberOfParameters)
 	}
 
-	frame := InitializeFrame(fn, vm.sp-numberOfParameters)
+	frame := InitializeFrame(cl, vm.sp-numberOfParameters)
 	vm.pushFrame(frame)
 
-	vm.sp = frame.basePointer + fn.NumberOfLocals
+	vm.sp = frame.basePointer + cl.Fn.NumberOfLocals
 
 	return nil
 }
@@ -312,13 +312,38 @@ func (vm *VirtualMachine) exectueCall(numberOfParameters int) error {
 	// fmt.Println(callee)
 
 	switch calleeType := callee.(type) {
-	case *object.CompiledFunction:
-		return vm.callFunction(calleeType, numberOfParameters)
+	case *object.Closure:
+		return vm.callClosure(calleeType, numberOfParameters)
 	case *object.Builtin:
 		return vm.callBuiltin(calleeType, numberOfParameters)
 	default:
 		return fmt.Errorf("calling a non-function and non-built-in")
 	}
+}
+
+// pushClosure :
+func (vm *VirtualMachine) pushClosure(constIndex int, numberOfFreeVariables int) error {
+	constant := vm.constants[constIndex]
+	function, ok := constant.(*object.CompiledFunction)
+
+	if !ok {
+		return fmt.Errorf("not a function: %+v", constant)
+	}
+
+	freeVariables := make([]object.Object, numberOfFreeVariables)
+
+	for index := 0; index < numberOfFreeVariables; index++ {
+		freeVariables[index] = vm.stack[vm.sp-numberOfFreeVariables+index]
+	}
+
+	vm.sp = vm.sp - numberOfFreeVariables
+
+	closure := &object.Closure{
+		Fn:            function,
+		FreeVariables: freeVariables,
+	}
+
+	return vm.push(closure)
 }
 
 // Run :
@@ -516,6 +541,38 @@ func (vm *VirtualMachine) Run() error {
 				return err
 			}
 
+		case code.OpClosure:
+			constIndex := code.ReadUint16(instructions[ip+1:])
+			numberOfFreeVariables := code.ReadUint8(instructions[ip+3:])
+
+			vm.currentFrame().ip += 3
+
+			err := vm.pushClosure(int(constIndex), int(numberOfFreeVariables))
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpGetFreeVariable:
+			freeVariableIndex := code.ReadUint8(instructions[ip+1:])
+			vm.currentFrame().ip++
+
+			currentClosure := vm.currentFrame().cl
+
+			err := vm.push(currentClosure.FreeVariables[freeVariableIndex])
+
+			if nil != err {
+				return err
+			}
+
+		case code.OpCurrentClosure:
+			currentClosure := vm.currentFrame().cl
+			err := vm.push(currentClosure)
+
+			if nil != err {
+				return err
+			}
+
 		}
 	}
 
@@ -527,7 +584,10 @@ func InitializeVirtualMachine(bytecode *compiler.Bytecode) *VirtualMachine {
 	mainFictional := &object.CompiledFunction{
 		Instructions: bytecode.Instructions,
 	}
-	mainFrame := InitializeFrame(mainFictional, 0)
+	mainClosure := &object.Closure{
+		Fn: mainFictional,
+	}
+	mainFrame := InitializeFrame(mainClosure, 0)
 
 	frames := make([]*Frame, FrameSize)
 	frames[0] = mainFrame

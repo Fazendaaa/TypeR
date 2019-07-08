@@ -163,6 +163,10 @@ func (c *Compiler) loadSymbol(symbol Symbol) {
 		c.emit(code.OpGetLocal, symbol.Index)
 	case BuiltinScope:
 		c.emit(code.OpGetBuiltin, symbol.Index)
+	case FreeVariableScope:
+		c.emit(code.OpGetFreeVariable, symbol.Index)
+	case FunctionScope:
+		c.emit(code.OpCurrentClosure)
 	}
 }
 
@@ -319,13 +323,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.LetStatement:
+		symbol := c.symbolTable.Define(node.Name.Value)
 		err := c.Compile(node.Value)
 
 		if nil != err {
 			return err
 		}
-
-		symbol := c.symbolTable.Define(node.Name.Value)
 
 		if GlobalScope == symbol.Scope {
 			c.emit(code.OpSetGlobal, symbol.Index)
@@ -378,6 +381,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.FunctionLiteral:
 		c.enterScope()
 
+		if "" != node.Name {
+			c.symbolTable.DefineFunctionName(node.Name)
+		}
+
 		for _, parameter := range node.Parameters {
 			c.symbolTable.Define(parameter.Value)
 		}
@@ -396,16 +403,22 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 
+		freeVariableSymbols := c.symbolTable.FreeVariableSymbol
 		numberOfLocals := c.symbolTable.numberDefinitions
 		instructions := c.leaveScope()
 
-		compiledFn := &object.CompiledFunction{
+		for _, symbol := range freeVariableSymbols {
+			c.loadSymbol(symbol)
+		}
+
+		compiledFunction := &object.CompiledFunction{
 			Instructions:       instructions,
 			NumberOfLocals:     numberOfLocals,
 			NumberOfParameters: len(node.Parameters),
 		}
 
-		c.emit(code.OpConstant, c.addConstant(compiledFn))
+		functionIndex := c.addConstant(compiledFunction)
+		c.emit(code.OpClosure, functionIndex, len(freeVariableSymbols))
 
 	case *ast.ReturnStatement:
 		err := c.Compile(node.ReturnValue)

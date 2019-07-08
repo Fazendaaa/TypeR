@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"../token"
@@ -116,6 +117,7 @@ type FunctionLiteral struct {
 	Contract   []*IdentifierTypes
 	Parameters []*Identifier
 	Body       *BlockStatement
+	Name       string
 }
 
 // CallExpression :
@@ -377,6 +379,11 @@ func (fl *FunctionLiteral) String() string {
 	}
 
 	out.WriteString(fl.TokenLiteral())
+
+	if "" != fl.Name {
+		out.WriteString(fmt.Sprintf("<%s>", fl.Name))
+	}
+
 	out.WriteString("(")
 	out.WriteString(strings.Join(parameters, ", "))
 	out.WriteString(") ")

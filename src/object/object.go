@@ -26,6 +26,7 @@ const (
 	BUILTIN_OBJECT           = "BUILTIN"
 	ARRAY_OBJECT             = "ARRAY"
 	COMPILED_FUNCTION_OBJECT = "COMPILED_FUNCTION_OBJECT"
+	CLOSURE_OBJECT           = "CLOSURE_OBJECT"
 )
 
 // Object :
@@ -90,6 +91,12 @@ type CompiledFunction struct {
 	Instructions       code.Instructions
 	NumberOfLocals     int
 	NumberOfParameters int
+}
+
+// Closure :
+type Closure struct {
+	Fn            *CompiledFunction
+	FreeVariables []Object
 }
 
 // Inspect :
@@ -220,4 +227,14 @@ func (cf *CompiledFunction) Type() ObjectType {
 // Inspect :
 func (cf *CompiledFunction) Inspect() string {
 	return fmt.Sprintf("CompiledFunction[%p]", cf)
+}
+
+// Type :
+func (c *Closure) Type() ObjectType {
+	return CLOSURE_OBJECT
+}
+
+// Inspect :
+func (c *Closure) Inspect() string {
+	return fmt.Sprintf("Closure[%p]", c)
 }

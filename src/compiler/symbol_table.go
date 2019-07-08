@@ -4,9 +4,11 @@ package compiler
 type SymbolScope string
 
 const (
-	GlobalScope  SymbolScope = "GLOBAL"
-	LocalScope   SymbolScope = "LOCAL"
-	BuiltinScope SymbolScope = "BUILTIN"
+	GlobalScope       SymbolScope = "GLOBAL"
+	LocalScope        SymbolScope = "LOCAL"
+	BuiltinScope      SymbolScope = "BUILTIN"
+	FreeVariableScope SymbolScope = "FREE_VARIABLE"
+	FunctionScope     SymbolScope = "FUNCTION"
 )
 
 // Symbol :
@@ -22,6 +24,36 @@ type SymbolTable struct {
 
 	store             map[string]Symbol
 	numberDefinitions int
+
+	FreeVariableSymbol []Symbol
+}
+
+// defineFreeVariable :
+func (s *SymbolTable) defineFreeVariable(original Symbol) Symbol {
+	s.FreeVariableSymbol = append(s.FreeVariableSymbol, original)
+
+	symbol := Symbol{
+		Name:  original.Name,
+		Index: len(s.FreeVariableSymbol) - 1,
+	}
+	symbol.Scope = FreeVariableScope
+
+	s.store[original.Name] = symbol
+
+	return symbol
+}
+
+// DefineFunctionName :
+func (s *SymbolTable) DefineFunctionName(name string) Symbol {
+	symbol := Symbol{
+		Name:  name,
+		Index: 0,
+		Scope: FunctionScope,
+	}
+
+	s.store[name] = symbol
+
+	return symbol
 }
 
 // Define :
@@ -62,6 +94,18 @@ func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
 
 	if !ok && nil != s.Outer {
 		obj, ok = s.Outer.Resolve(name)
+
+		if !ok {
+			return obj, ok
+		}
+
+		if GlobalScope == obj.Scope || BuiltinScope == obj.Scope {
+			return obj, ok
+		}
+
+		freeVariable := s.defineFreeVariable(obj)
+
+		return freeVariable, true
 	}
 
 	return obj, ok
@@ -69,10 +113,12 @@ func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
 
 // InitializeSymbolTable :
 func InitializeSymbolTable() *SymbolTable {
-	s := make(map[string]Symbol)
+	store := make(map[string]Symbol)
+	freeVariable := []Symbol{}
 
 	return &SymbolTable{
-		store: s,
+		store:              store,
+		FreeVariableSymbol: freeVariable,
 	}
 }
 
