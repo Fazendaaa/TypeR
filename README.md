@@ -39,6 +39,7 @@ Share your thoughts about this through the [author](#Author) channels of communi
     - [Note](#Note)
   - [Author](#Author)
   - [Reference](#Reference)
+    - [Articles](#Articles)
     - [Books](#Books)
     - [Podcasts](#Podcasts)
       - [Hipsters](#Hipsters)
@@ -252,6 +253,10 @@ As the idea is to actually leave this repository just for discussions related to
 - [Telegram](https://t.me/farmy)
 
 ## Reference
+
+### Articles
+
+- [R Language Definition](https://cran.r-project.org/doc/manuals/r-release/R-lang.html)
 
 ### Books
 
