@@ -218,13 +218,13 @@ Even if it does not have some of the practicalities of the functional paradigm l
 - Create syntax support to render Markdown files
 - Tooling for TypeR:
   - Create a config file kinda like it [tsconfig](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) one
-  - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best
+  - Create a linter/formatter package for the language so that more flexible patterns are placed and directed to the community to configure them in the way they think best -- [TRLint](https://github.com/Fazendaaa/TRLint)
   - Create a debuger tool
   - Create a testing package
     - Add coverage builtin
     - Add mutation test support to it
   - Support to [VS Code](https://code.visualstudio.com/) in:
-    - Linter
+    - Linter -- [TRLint](https://github.com/Fazendaaa/TRLint-VSCode)
     - Debuger
     - Testing
   - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run:
