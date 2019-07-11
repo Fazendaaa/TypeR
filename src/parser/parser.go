@@ -99,6 +99,21 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	return false
 }
 
+// parseExpressionStatement :
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	statement := &ast.ExpressionStatement{
+		Token: p.currentToken,
+	}
+
+	statement.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
 // parseLetStatement :
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	statement := &ast.LetStatement{
@@ -118,6 +133,41 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
+	p.nextToken()
+
+	statement.Value = p.parseExpression(LOWEST)
+
+	if functionLiteral, ok := statement.Value.(*ast.FunctionLiteral); ok {
+		functionLiteral.Name = statement.Name.Value
+	}
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+// parseConstStatement :
+func (p *Parser) parseConstStatement() *ast.ConstStatement {
+	statement := &ast.ConstStatement{
+		Token: p.currentToken,
+	}
+
+	if !p.currentTokenIs(token.IDENTIFIER) {
+		return nil
+	}
+
+	statement.Name = &ast.Identifier{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	if !p.peekTokenIs(token.ASSIGN) {
+		return nil
+	}
+
+	p.nextToken()
 	p.nextToken()
 
 	statement.Value = p.parseExpression(LOWEST)
@@ -161,6 +211,14 @@ func (p *Parser) parseIdentifier() ast.Expression {
 // parseStatement :
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
+	case token.IDENTIFIER:
+		constant := p.parseConstStatement()
+
+		if nil != constant {
+			return constant
+		}
+
+		return p.parseExpressionStatement()
 	case token.LET:
 		return p.parseLetStatement()
 	case token.RETURN:
@@ -221,21 +279,6 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	}
 
 	return leftExpression
-}
-
-// parseExpressionStatement :
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	statement := &ast.ExpressionStatement{
-		Token: p.currentToken,
-	}
-
-	statement.Expression = p.parseExpression(LOWEST)
-
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
-	return statement
 }
 
 // parsePrefixExpression :

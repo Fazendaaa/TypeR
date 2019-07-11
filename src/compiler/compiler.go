@@ -170,6 +170,15 @@ func (c *Compiler) loadSymbol(symbol Symbol) {
 	}
 }
 
+// defineAssignmentScope :
+func (c *Compiler) defineAssignmentScope(symbol Symbol) {
+	if GlobalScope == symbol.Scope {
+		c.emit(code.OpSetGlobal, symbol.Index)
+	} else {
+		c.emit(code.OpSetLocal, symbol.Index)
+	}
+}
+
 // Compile :
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
@@ -322,6 +331,22 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 
+	case *ast.ConstStatement:
+		_, ok := c.symbolTable.Resolve(node.Name.Value)
+
+		if ok {
+			return fmt.Errorf("overwrite previously defined value '%s' is not allowed", node.Name.Value)
+		}
+
+		symbol := c.symbolTable.Define(node.Name.Value)
+		err := c.Compile(node.Value)
+
+		if nil != err {
+			return err
+		}
+
+		c.defineAssignmentScope(symbol)
+
 	case *ast.LetStatement:
 		symbol := c.symbolTable.Define(node.Name.Value)
 		err := c.Compile(node.Value)
@@ -330,11 +355,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		if GlobalScope == symbol.Scope {
-			c.emit(code.OpSetGlobal, symbol.Index)
-		} else {
-			c.emit(code.OpSetLocal, symbol.Index)
-		}
+		c.defineAssignmentScope(symbol)
 
 	case *ast.Identifier:
 		symbol, ok := c.symbolTable.Resolve(node.Value)

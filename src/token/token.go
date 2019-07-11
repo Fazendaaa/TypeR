@@ -16,7 +16,6 @@ const (
 	INT        = "INT"
 	DOUBLE     = "DOUBLE"
 	STRING     = "STRING"
-	UNKNOWN    = "UNKNOWN"
 	IDENTIFIER = "IDENTIFIER"
 
 	LET      = "LET"

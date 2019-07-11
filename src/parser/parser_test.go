@@ -9,6 +9,31 @@ import (
 	"../lexer"
 )
 
+// testConstStatements :
+func testConstStatements(t *testing.T, s ast.Statement, name string) bool {
+	constStatement, ok := s.(*ast.ConstStatement)
+
+	if !ok {
+		t.Errorf("s not *ast.ConstStatement, got=%T", s)
+
+		return false
+	}
+
+	if constStatement.Name.Value != name {
+		t.Errorf("constStatement.Name.Value not '%s', got=%s", name, constStatement.Name.Value)
+
+		return false
+	}
+
+	if constStatement.Name.TokenLiteral() != name {
+		t.Errorf("constStatement.Name.TokenLiteral() not '%s', got=%s", name, constStatement.Name.TokenLiteral())
+
+		return false
+	}
+
+	return true
+}
+
 // testLetStatements :
 func testLetStatements(t *testing.T, s ast.Statement, name string) bool {
 	if "let" != s.TokenLiteral() {
@@ -176,6 +201,55 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	}
 
 	t.FailNow()
+}
+
+// TestConstStatements :
+func TestConstStatements(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{
+			"x <- 5;",
+			"x",
+			5,
+		},
+		{
+			"y<-10",
+			"y",
+			10,
+		},
+		{
+			"foo <- y",
+			"foo",
+			"y",
+		},
+	}
+
+	for _, tt := range tests {
+		l := lexer.InitializeLexer(tt.input)
+		p := InitializeParser(l)
+		program := p.ParseProgram()
+
+		checkParserErrors(t, p)
+
+		if 1 != len(program.Statements) {
+			t.Fatalf("program.Statements does not contains %d statements, got=%d\n", 1, len(program.Statements))
+		}
+
+		statement := program.Statements[0]
+
+		if !testConstStatements(t, statement, tt.expectedIdentifier) {
+			return
+		}
+
+		value := statement.(*ast.ConstStatement).Value
+
+		if !testLiteralExpresion(t, value, tt.expectedValue) {
+			return
+		}
+	}
 }
 
 // TestLetStatements :
@@ -992,8 +1066,8 @@ func TestParsingIndexExpressions(t *testing.T) {
 	}
 }
 
-// TestFunctionLiteralWithName :
-func TestFunctionLiteralWithName(t *testing.T) {
+// TestLetFunctionLiteralWithName :
+func TestLetFunctionLiteralWithName(t *testing.T) {
 	input := `let myFunction <- function() {}`
 
 	l := lexer.InitializeLexer(input)
@@ -1010,6 +1084,37 @@ func TestFunctionLiteralWithName(t *testing.T) {
 
 	if !ok {
 		t.Fatalf("program.Statement[0] is not ast.LetStatement, got=%T", program.Statements[0])
+	}
+
+	function, ok := statement.Value.(*ast.FunctionLiteral)
+
+	if !ok {
+		t.Fatalf("statement.Value is not ast.FunctionLiteral, got=%T", statement.Value)
+	}
+
+	if "myFunction" != function.Name {
+		t.Fatalf("function.Name is not '%s', got=%s", "myFunction", function.Name)
+	}
+}
+
+// TestConstFunctionLiteralWithName :
+func TestConstFunctionLiteralWithName(t *testing.T) {
+	input := `myFunction <- function() {}`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	if 1 != len(program.Statements) {
+		t.Fatalf("program.Body does not contain %d statements, got=%d\n", 1, len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.ConstStatement)
+
+	if !ok {
+		t.Fatalf("program.Statement[0] is not ast.ConstStatement, got=%T", program.Statements[0])
 	}
 
 	function, ok := statement.Value.(*ast.FunctionLiteral)

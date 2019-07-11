@@ -215,6 +215,27 @@ func evalBlockStatement(block *ast.BlockStatement, environment *object.Environme
 	return result
 }
 
+// evalConstant :
+func evalConstant(cons *ast.ConstStatement, environment *object.Environment) object.Object {
+	if _, ok := environment.Get(cons.Name.Value); ok {
+		return newError("constant '%s' value cannot be overwritten", cons.Name.Value)
+	}
+
+	if _, ok := builtins[cons.Name.Value]; ok {
+		return newError("builtin function '%s' cannot be overwritten", cons.Name.Value)
+	}
+
+	value := Eval(cons.Value, environment)
+
+	if isError(value) {
+		return value
+	}
+
+	environment.Set(cons.Name.Value, value)
+
+	return nil
+}
+
 // evalIdentifier :
 func evalIdentifier(node *ast.Identifier, environment *object.Environment) object.Object {
 	if value, ok := environment.Get(node.Value); ok {
@@ -312,14 +333,18 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node.Statements, environment)
+
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, environment)
+
 	case *ast.IntegerLiteral:
 		return &object.Integer{
 			Value: node.Value,
 		}
+
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, environment)
 
@@ -328,6 +353,7 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 		return evalPrefixExpression(node.Operator, right)
+
 	case *ast.InfixExpression:
 		left := Eval(node.Left, environment)
 
@@ -342,10 +368,13 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 		return evalInfixExpression(node.Operator, left, right)
+
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, environment)
+
 	case *ast.ConditionalExpression:
 		return evalConditionalExpression(node, environment)
+
 	case *ast.ReturnStatement:
 		value := Eval(node.ReturnValue, environment)
 
@@ -356,6 +385,14 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		return &object.ReturnValue{
 			Value: value,
 		}
+
+	case *ast.ConstStatement:
+		err := evalConstant(node, environment)
+
+		if nil != err {
+			return err
+		}
+
 	case *ast.LetStatement:
 		value := Eval(node.Value, environment)
 
@@ -364,8 +401,10 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 		environment.Set(node.Name.Value, value)
+
 	case *ast.Identifier:
 		return evalIdentifier(node, environment)
+
 	case *ast.FunctionLiteral:
 		parameters := node.Parameters
 		body := node.Body
@@ -375,6 +414,7 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 			Environment: environment,
 			Body:        body,
 		}
+
 	case *ast.CallExpression:
 		function := Eval(node.Function, environment)
 
@@ -389,10 +429,12 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 		return applyFunction(function, arguments)
+
 	case *ast.StringLiteral:
 		return &object.String{
 			Value: node.Value,
 		}
+
 	case *ast.ArrayLiteral:
 		elements := evalExpression(node.Elements, environment)
 
@@ -403,6 +445,7 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		return &object.Array{
 			Elements: elements,
 		}
+
 	case *ast.IndexExpression:
 		left := Eval(node.Left, environment)
 

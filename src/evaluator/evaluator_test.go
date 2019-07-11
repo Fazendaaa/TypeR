@@ -439,6 +439,35 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+//  TestConstStatements :
+func TestConstStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{
+			"a <- 5; a;",
+			5,
+		},
+		{
+			"a <- 5 * 5; a",
+			25,
+		},
+		{
+			"a <- 5; b <- a; b;",
+			5,
+		},
+		{
+			"a <- 5; b <- a; c <- a + b + 5; c",
+			15,
+		},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
 //  TestLetStatements :
 func TestLetStatements(t *testing.T) {
 	tests := []struct {

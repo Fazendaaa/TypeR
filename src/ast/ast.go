@@ -50,6 +50,13 @@ type LetStatement struct {
 	Value Expression
 }
 
+// ConstStatement :
+type ConstStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
 // ReturnStatement :
 type ReturnStatement struct {
 	Token       token.Token
@@ -206,6 +213,29 @@ func (ls *LetStatement) statementNode() {}
 // TokenLiteral :
 func (ls *LetStatement) TokenLiteral() string {
 	return ls.Token.Literal
+}
+
+// String :
+func (cs *ConstStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(cs.TokenLiteral() + " ")
+	out.WriteString(cs.Name.String())
+	out.WriteString(" <- ")
+
+	if nil != cs.Value {
+		out.WriteString(cs.Value.String())
+	}
+
+	return out.String()
+}
+
+// statementNode :
+func (cs *ConstStatement) statementNode() {}
+
+// TokenLiteral :
+func (cs *ConstStatement) TokenLiteral() string {
+	return cs.Token.Literal
 }
 
 // String :
