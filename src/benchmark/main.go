@@ -16,7 +16,7 @@ import (
 var engine = flag.String("engine", "virtualmachine", "user 'virtualmachine' or 'evaluator'")
 
 var input = `
-let fibonacci <-function(x) {
+fibonacci <-function(x) {
 	if (0 == x) {
 		0
 	} else {
