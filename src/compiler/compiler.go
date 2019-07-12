@@ -332,23 +332,32 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.ConstStatement:
-		_, ok := c.symbolTable.Resolve(node.Name.Value)
+		value, ok := c.symbolTable.Resolve(node.Name.Value)
 
-		if ok {
+		if !ok {
+			symbol := c.symbolTable.Define(node.Name.Value, true)
+			err := c.Compile(node.Value)
+
+			if nil != err {
+				return err
+			}
+
+			c.defineAssignmentScope(symbol)
+		}
+		if value.Constant {
 			return fmt.Errorf("overwrite previously defined value '%s' is not allowed", node.Name.Value)
 		}
 
-		symbol := c.symbolTable.Define(node.Name.Value)
 		err := c.Compile(node.Value)
 
 		if nil != err {
 			return err
 		}
 
-		c.defineAssignmentScope(symbol)
+		c.defineAssignmentScope(value)
 
 	case *ast.LetStatement:
-		symbol := c.symbolTable.Define(node.Name.Value)
+		symbol := c.symbolTable.Define(node.Name.Value, false)
 		err := c.Compile(node.Value)
 
 		if nil != err {
@@ -407,7 +416,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		for _, parameter := range node.Parameters {
-			c.symbolTable.Define(parameter.Value)
+			c.symbolTable.Define(parameter.Value, true)
 		}
 
 		err := c.Compile(node.Body)

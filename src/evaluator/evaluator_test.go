@@ -490,6 +490,10 @@ func TestLetStatements(t *testing.T) {
 			"let a <- 5; let b <- a; let c <- a + b + 5; c",
 			15,
 		},
+		{
+			"let a <- 5 * 5; a <- a + 2; a",
+			27,
+		},
 	}
 
 	for _, tt := range tests {

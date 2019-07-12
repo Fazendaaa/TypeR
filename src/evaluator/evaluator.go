@@ -5,6 +5,7 @@ import (
 
 	"../ast"
 	"../object"
+	"../token"
 )
 
 var (
@@ -215,9 +216,34 @@ func evalBlockStatement(block *ast.BlockStatement, environment *object.Environme
 	return result
 }
 
+// evalLet :
+func evalLet(let *ast.LetStatement, environment *object.Environment) object.Object {
+	value := Eval(let.Value, environment)
+
+	if isError(value) {
+		return value
+	}
+
+	environment.Set(let.Name.Value, false, value)
+
+	return nil
+}
+
+// consToLet :
+func consToLet(cons *ast.ConstStatement) *ast.LetStatement {
+	return &ast.LetStatement{
+		Token: token.Token{
+			Type:    token.LET,
+			Literal: "LET",
+		},
+		Name:  cons.Name,
+		Value: cons.Value,
+	}
+}
+
 // evalConstant :
 func evalConstant(cons *ast.ConstStatement, environment *object.Environment) object.Object {
-	if _, ok := environment.Get(cons.Name.Value); ok {
+	if field, ok := environment.Get(cons.Name.Value); ok && field.Constant {
 		return newError("constant '%s' value cannot be overwritten", cons.Name.Value)
 	}
 
@@ -225,21 +251,13 @@ func evalConstant(cons *ast.ConstStatement, environment *object.Environment) obj
 		return newError("builtin function '%s' cannot be overwritten", cons.Name.Value)
 	}
 
-	value := Eval(cons.Value, environment)
-
-	if isError(value) {
-		return value
-	}
-
-	environment.Set(cons.Name.Value, value)
-
-	return nil
+	return evalLet(consToLet(cons), environment)
 }
 
 // evalIdentifier :
 func evalIdentifier(node *ast.Identifier, environment *object.Environment) object.Object {
 	if value, ok := environment.Get(node.Value); ok {
-		return value
+		return value.Value
 	}
 
 	if builtin, ok := builtins[node.Value]; ok {
@@ -303,7 +321,7 @@ func extendendFunctionEnvironment(fn *object.Function, arguments []object.Object
 	environment := object.InitializeEnclosedEnvironment(fn.Environment)
 
 	for parameterIdx, parameter := range fn.Parameters {
-		environment.Set(parameter.Value, arguments[parameterIdx])
+		environment.Set(parameter.Value, true, arguments[parameterIdx])
 	}
 
 	return environment
@@ -394,13 +412,11 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 	case *ast.LetStatement:
-		value := Eval(node.Value, environment)
+		err := evalLet(node, environment)
 
-		if isError(value) {
-			return value
+		if nil != err {
+			return err
 		}
-
-		environment.Set(node.Name.Value, value)
 
 	case *ast.Identifier:
 		return evalIdentifier(node, environment)

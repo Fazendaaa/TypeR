@@ -39,13 +39,13 @@ func TestDefine(t *testing.T) {
 
 	global := InitializeSymbolTable()
 
-	a := global.Define("a")
+	a := global.Define("a", false)
 
 	if a != expected["a"] {
 		t.Errorf("expected a=%+v, got=%+v", expected["a"], a)
 	}
 
-	b := global.Define("b")
+	b := global.Define("b", false)
 
 	if b != expected["b"] {
 		t.Errorf("expected b=%+v, got=%+v", expected["b"], b)
@@ -53,13 +53,13 @@ func TestDefine(t *testing.T) {
 
 	firstLocal := InitializeEnclosedSymbolTable(global)
 
-	c := firstLocal.Define("c")
+	c := firstLocal.Define("c", false)
 
 	if c != expected["c"] {
 		t.Errorf("expected a=%+v, got=%+v", expected["c"], c)
 	}
 
-	d := firstLocal.Define("d")
+	d := firstLocal.Define("d", false)
 
 	if d != expected["d"] {
 		t.Errorf("expected a=%+v, got=%+v", expected["d"], d)
@@ -67,13 +67,13 @@ func TestDefine(t *testing.T) {
 
 	secondLocal := InitializeEnclosedSymbolTable(firstLocal)
 
-	e := secondLocal.Define("e")
+	e := secondLocal.Define("e", false)
 
 	if e != expected["e"] {
 		t.Errorf("expected a=%+v, got=%+v", expected["e"], e)
 	}
 
-	f := secondLocal.Define("f")
+	f := secondLocal.Define("f", false)
 
 	if f != expected["f"] {
 		t.Errorf("expected a=%+v, got=%+v", expected["f"], f)
@@ -83,8 +83,8 @@ func TestDefine(t *testing.T) {
 // TestResolveGlobal :
 func TestResolveGlobal(t *testing.T) {
 	global := InitializeSymbolTable()
-	global.Define("a")
-	global.Define("b")
+	global.Define("a", false)
+	global.Define("b", false)
 
 	expected := []Symbol{
 		Symbol{
@@ -118,12 +118,12 @@ func TestResolveGlobal(t *testing.T) {
 func TestResolveLocal(t *testing.T) {
 	global := InitializeSymbolTable()
 
-	global.Define("a")
-	global.Define("b")
+	global.Define("a", false)
+	global.Define("b", false)
 
 	local := InitializeEnclosedSymbolTable(global)
-	local.Define("c")
-	local.Define("d")
+	local.Define("c", false)
+	local.Define("d", false)
 
 	expected := []Symbol{
 		Symbol{
@@ -166,16 +166,16 @@ func TestResolveLocal(t *testing.T) {
 // TestResolveNestedLocal :
 func TestResolveNestedLocal(t *testing.T) {
 	global := InitializeSymbolTable()
-	global.Define("a")
-	global.Define("b")
+	global.Define("a", false)
+	global.Define("b", false)
 
 	firstLocal := InitializeEnclosedSymbolTable(global)
-	firstLocal.Define("c")
-	firstLocal.Define("d")
+	firstLocal.Define("c", false)
+	firstLocal.Define("d", false)
 
 	secondLocal := InitializeEnclosedSymbolTable(firstLocal)
-	secondLocal.Define("e")
-	secondLocal.Define("f")
+	secondLocal.Define("e", false)
+	secondLocal.Define("f", false)
 
 	tests := []struct {
 		table           *SymbolTable
@@ -306,16 +306,16 @@ func TestDefineResolveBuiltins(t *testing.T) {
 // TestResolveFreeVariables :
 func TestResolveFreeVariables(t *testing.T) {
 	global := InitializeSymbolTable()
-	global.Define("a")
-	global.Define("b")
+	global.Define("a", false)
+	global.Define("b", false)
 
 	firstLocal := InitializeEnclosedSymbolTable(global)
-	firstLocal.Define("c")
-	firstLocal.Define("d")
+	firstLocal.Define("c", false)
+	firstLocal.Define("d", false)
 
 	secondLocal := InitializeEnclosedSymbolTable(firstLocal)
-	secondLocal.Define("e")
-	secondLocal.Define("f")
+	secondLocal.Define("e", false)
+	secondLocal.Define("f", false)
 
 	tests := []struct {
 		table                       *SymbolTable
@@ -431,14 +431,14 @@ func TestResolveFreeVariables(t *testing.T) {
 // TestResolveUnresolvableFreeVariables :
 func TestResolveUnresolvableFreeVariables(t *testing.T) {
 	global := InitializeSymbolTable()
-	global.Define("a")
+	global.Define("a", false)
 
 	firstLocal := InitializeEnclosedSymbolTable(global)
-	firstLocal.Define("c")
+	firstLocal.Define("c", false)
 
 	secondLocal := InitializeEnclosedSymbolTable(firstLocal)
-	secondLocal.Define("e")
-	secondLocal.Define("f")
+	secondLocal.Define("e", false)
+	secondLocal.Define("f", false)
 
 	expected := []Symbol{
 		Symbol{
@@ -517,7 +517,7 @@ func TestDefineAndResolveFunctionName(t *testing.T) {
 func TestShadowingFunctionName(t *testing.T) {
 	global := InitializeSymbolTable()
 	global.DefineFunctionName("a")
-	global.Define("a")
+	global.Define("a", false)
 
 	expected := Symbol{
 		Name:  "a",

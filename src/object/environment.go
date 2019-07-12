@@ -1,8 +1,20 @@
 package object
 
+// Field :
+type Field struct {
+	Constant bool
+	Value    Object
+}
+
+// Environment :
+type Environment struct {
+	store map[string]Field
+	outer *Environment
+}
+
 // InitializeEnvironment :
 func InitializeEnvironment() *Environment {
-	store := make(map[string]Object)
+	store := make(map[string]Field)
 
 	return &Environment{
 		store: store,
@@ -19,7 +31,7 @@ func InitializeEnclosedEnvironment(outer *Environment) *Environment {
 }
 
 // Get :
-func (e *Environment) Get(name string) (Object, bool) {
+func (e *Environment) Get(name string) (Field, bool) {
 	obj, ok := e.store[name]
 
 	if !ok && nil != e.outer {
@@ -30,8 +42,13 @@ func (e *Environment) Get(name string) (Object, bool) {
 }
 
 // Set :
-func (e *Environment) Set(name string, value Object) Object {
-	e.store[name] = value
+func (e *Environment) Set(name string, constant bool, value Object) Object {
+	field := Field{
+		Value:    value,
+		Constant: constant,
+	}
+
+	e.store[name] = field
 
 	return value
 }

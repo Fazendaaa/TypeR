@@ -58,12 +58,6 @@ type Error struct {
 	Message string
 }
 
-// Environment :
-type Environment struct {
-	store map[string]Object
-	outer *Environment
-}
-
 // Function :
 type Function struct {
 	Parameters  []*ast.Identifier

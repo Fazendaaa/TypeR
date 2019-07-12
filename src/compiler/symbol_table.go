@@ -13,9 +13,10 @@ const (
 
 // Symbol :
 type Symbol struct {
-	Name  string
-	Scope SymbolScope
-	Index int
+	Name     string
+	Constant bool
+	Scope    SymbolScope
+	Index    int
 }
 
 // SymbolTable :
@@ -57,10 +58,11 @@ func (s *SymbolTable) DefineFunctionName(name string) Symbol {
 }
 
 // Define :
-func (s *SymbolTable) Define(name string) Symbol {
+func (s *SymbolTable) Define(name string, constant bool) Symbol {
 	symbol := Symbol{
-		Name:  name,
-		Index: s.numberDefinitions,
+		Name:     name,
+		Constant: constant,
+		Index:    s.numberDefinitions,
 	}
 
 	if nil == s.Outer {
