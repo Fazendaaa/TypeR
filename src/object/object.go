@@ -63,6 +63,7 @@ type Function struct {
 	Parameters  []*ast.Identifier
 	Body        *ast.BlockStatement
 	Environment *Environment
+	Name        string
 }
 
 // String :
@@ -159,6 +160,12 @@ func (f *Function) Inspect() string {
 
 	for _, parameter := range f.Parameters {
 		parameters = append(parameters, parameter.String())
+	}
+
+	if "" != f.Name {
+		out.WriteString(f.Name)
+		out.WriteString(" <- ")
+		out.WriteString("function")
 	}
 
 	out.WriteString("function")

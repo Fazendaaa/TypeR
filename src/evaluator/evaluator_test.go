@@ -555,6 +555,40 @@ func TestFunctionApplication(t *testing.T) {
 			"function(x) { x }(5)",
 			5,
 		},
+		{
+			"add <- function(x, y) { x + y }; add(5, 5 * 5)",
+			30,
+		},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
+// TestFunctionMemoization :
+func TestFunctionMemoization(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{
+			`fibonacci <-function(x) {
+				if (0 == x) {
+					0
+				} else {
+					if (1 == x) {
+						1
+					} else {
+						fibonacci(x - 1) + fibonacci(x - 2)
+					}
+				}
+			}
+
+			fibonacci(20)
+			`,
+			6765,
+		},
 	}
 
 	for _, tt := range tests {

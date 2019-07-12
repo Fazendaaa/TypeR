@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"strings"
 
 	"../ast"
 	"../object"
@@ -327,16 +328,43 @@ func extendendFunctionEnvironment(fn *object.Function, arguments []object.Object
 	return environment
 }
 
+// memoizationKey :
+func memoizationKey(function *object.Function, parameters []object.Object) string {
+	names := []string{}
+
+	for _, parameter := range parameters {
+		names = append(names, parameter.Inspect())
+	}
+
+	return function.Name + "(" + strings.Join(names, ", ") + ")"
+}
+
+// applyDefinedFunction :
+func applyDefinedFunction(function *object.Function, parameters []object.Object, environment *object.Environment) object.Object {
+	memoization := memoizationKey(function, parameters)
+
+	if obj, ok := environment.GetMemoization(memoization); ok {
+		return obj
+	}
+
+	extendendEnvironment := extendendFunctionEnvironment(function, parameters)
+	evaluated := Eval(function.Body, extendendEnvironment)
+	value := unwrapReturnValue(evaluated)
+
+	if "" != function.Name {
+		environment.SetMemoization(memoization, value)
+	}
+
+	return value
+}
+
 // applyFunction :
-func applyFunction(fn object.Object, arguments []object.Object) object.Object {
+func applyFunction(fn object.Object, parameters []object.Object, environment *object.Environment) object.Object {
 	switch function := fn.(type) {
 	case *object.Function:
-		extendendEnvironment := extendendFunctionEnvironment(function, arguments)
-		evaluated := Eval(function.Body, extendendEnvironment)
-
-		return unwrapReturnValue(evaluated)
+		return applyDefinedFunction(function, parameters, environment)
 	case *object.Builtin:
-		if result := function.Fn(arguments...); nil != result {
+		if result := function.Fn(parameters...); nil != result {
 			return result
 		}
 
@@ -424,12 +452,17 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 	case *ast.FunctionLiteral:
 		parameters := node.Parameters
 		body := node.Body
-
-		return &object.Function{
+		function := &object.Function{
 			Parameters:  parameters,
 			Environment: environment,
 			Body:        body,
 		}
+
+		if "" != node.Name {
+			function.Name = node.Name
+		}
+
+		return function
 
 	case *ast.CallExpression:
 		function := Eval(node.Function, environment)
@@ -438,13 +471,13 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 			return function
 		}
 
-		arguments := evalExpression(node.Parameters, environment)
+		parameters := evalExpression(node.Parameters, environment)
 
-		if 1 == len(arguments) && isError(arguments[0]) {
-			return arguments[0]
+		if 1 == len(parameters) && isError(parameters[0]) {
+			return parameters[0]
 		}
 
-		return applyFunction(function, arguments)
+		return applyFunction(function, parameters, environment)
 
 	case *ast.StringLiteral:
 		return &object.String{

@@ -8,17 +8,20 @@ type Field struct {
 
 // Environment :
 type Environment struct {
-	store map[string]Field
-	outer *Environment
+	store       map[string]Field
+	outer       *Environment
+	memoization map[string]Object
 }
 
 // InitializeEnvironment :
 func InitializeEnvironment() *Environment {
 	store := make(map[string]Field)
+	memoization := make(map[string]Object)
 
 	return &Environment{
-		store: store,
-		outer: nil,
+		store:       store,
+		outer:       nil,
+		memoization: memoization,
 	}
 }
 
@@ -51,4 +54,26 @@ func (e *Environment) Set(name string, constant bool, value Object) Object {
 	e.store[name] = field
 
 	return value
+}
+
+// GetMemoization :
+func (e *Environment) GetMemoization(name string) (Object, bool) {
+	obj, ok := e.memoization[name]
+
+	if !ok && nil != e.outer {
+		obj, ok = e.outer.GetMemoization(name)
+	}
+
+	return obj, ok
+}
+
+// SetMemoization :
+func (e *Environment) SetMemoization(name string, obj Object) Object {
+	e.memoization[name] = obj
+
+	if nil != e.outer {
+		e.outer.SetMemoization(name, obj)
+	}
+
+	return obj
 }
