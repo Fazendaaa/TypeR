@@ -59,11 +59,13 @@ Share your thoughts about this through the [author](#Author) channels of communi
 
 - [TypeR](#TypeR)
   - [Introduction](#Introduction)
-  - [How should it supposed to be](#How-should-it-supposed-to-be)
+  - [Current working](#Current-working)
     - [Functions](#Functions)
-      - [Throw notation](#Throw-notation)
-      - [New notation](#New-notation)
     - [Constants](#Constants)
+    - [Variables](#Variables)
+  - [How should it supposed to be](#How-should-it-supposed-to-be)
+    - [Functions Headers](#Functions-Headers)
+      - [Throw notation](#Throw-notation)
     - [Point free notation](#Point-free-notation)
     - [Prefix operations](#Prefix-operations)
     - [Polymorphism](#Polymorphism)
@@ -87,49 +89,20 @@ Share your thoughts about this through the [author](#Author) channels of communi
       - [Logo](#Logo)
       - [Programming](#Programming)
 
-## How should it supposed to be
-
-A small example of how language it's supposed to be one day.
-
-**WARNING**: these are just ideas, they may be possible or not.
+## Current working
 
 ### Functions
 
+No need to add the reserved word `function` to declare one:
+
 ```TypeR
-add := Numeric a => a -> a -> a
+add <- (x, y) x + y
+```
+
+But since compatibility is a blessing, you can type it as well if you want to:
+
+```TypeR
 add <- function(x, y) x + y
-```
-
-The function header is similar to Haskell's -- read more at [functional approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
-
-```TypeR
-multiply <- function(x, y) x * y
-# multiply := Numeric a => a -> a -> a
-```
-
-#### Throw notation
-
-If a function throws an error or a warning, the caller has to know that without having to look at the implementation of the function itself.
-
-```TypeR
-isURLValid("www.google.com")
-# isURLValid := String -> Bool; throws error, warning
-```
-
-#### New notation
-
-Maybe add or replace the old function notation with one of those two new notations:
-
-```TypeR
-divide <- (x, y) <- x / y
-# divide := Numeric a => a -> a -> a
-```
-
-Or:
-
-```TypeR
-divide x y <- x / y
-# divide := Numeric a => a -> a -> a
 ```
 
 ### Constants
@@ -142,7 +115,9 @@ result <- 4
 # This will throw a compiler error, because result is a constant
 ```
 
-If you want a "constant" to have its value changed, you must use the **let** keyword.
+### Variables
+
+If you want to declare a variable, you must use the **let** keyword to do so:
 
 ```TypeR
 let result <- add(1, 2)
@@ -152,12 +127,41 @@ result <- 4
 # result is 4
 ```
 
+## How should it supposed to be
+
+A small example of how language it's supposed to be one day.
+
+**WARNING**: these are just ideas, they may be possible or not.
+
+### Functions Headers
+
+```TypeR
+add := Numeric a => a -> a -> a
+add <- (x, y) x + y
+```
+
+The function header is similar to Haskell's -- read more at [functional approach](#Functional-approach) --; therefore, it also does not need to be declared, the language engine is able to infer the types of the parameters by the operations performed with them in the function body.
+
+```TypeR
+multiply <- (x, y) x * y
+# multiply := Numeric a => a -> a -> a
+```
+
+#### Throw notation
+
+If a function throws an error or a warning, the caller has to know that without having to look at the implementation of the function itself.
+
+```TypeR
+isURLValid("www.google.com")
+# isURLValid := String -> Bool; throws error, warning
+```
+
 ### Point free notation
 
 ```TypeR
-square <- function(x) x ^ 2
+square <- (x) x ^ 2
 
-addTwo <- function(x) x + 2
+addTwo <- (x) x + 2
 
 result <- addTwo . square 2
 # result is 6
@@ -194,7 +198,7 @@ That would mean being able to do the following:
 
 ```TypeR
 normalizeDistribution := Vector[Numeric] -> ConfidenceLevel -> Vector[Numeric]
-normalizeDistribution <- function(set, level) {
+normalizeDistribution <- (set, level) {
   ...
 
   return normalized
@@ -218,7 +222,7 @@ import * from graphics
 Add keywords to export functions automatically:
 
 ```TypeR
-export identity <- function(x) x
+export identity <- (x) x
 ```
 
 The idea to use the match operator is only to use it as a trump card when programing, the NAMESPACE file will import only the used functions.
