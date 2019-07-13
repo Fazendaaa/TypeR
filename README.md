@@ -2,19 +2,53 @@
 
 > A superset language implemented in Go that types the R language
 
-![TypeR logo](./logo/typer.png)
+![TypeR logo](img/logo/logo.new.png)
+
+> "Incompetentem declaret esse counterproductive"
 
 ## Introduction
 
 According to the language site itself, [R](https://www.r-project.org/) is:
 
-> R is a language and environment for statistical computing and graphics.
+> [...] is a language and environment for statistical computing and graphics.
 
 Because it is a scripting language, R seeks to allow flexibility in the development and prototyping of ideas. Through its weak typing system this can be a problem for applications in production -- it is worth noting that this is not a "problem" of language since it was meant to behave the way it is, but this same behavior may end becoming a difficulty to maintain a great code base in the language.
 
 **TypeR** tries to be for R what [TypeScript](https://www.typescriptlang.org/) is for [JavaScript](https://www.javascript.com/), implementing a strong typing system that allows inference and statically typed -- the idea is to go beyond just being types and also to limit the language only to the functional paradigm, cleaning up a little of the multi paradigm of R.
 
-At the end of the day the idea is to write a "functional and typed R code" which will then spit out a normal code in R after all the checks are done, avoiding possible errors when the code is running in production.
+At the end of the day the idea is to write a "functional and typed R code" which will then spit out a normal code in R after all the checks are done, avoiding possible errors when the code is running in production. And if you want to better understand the reason for this decision, you can read more in [functional approach](#Functional-approach); but to give a taste of what this means, the following code...
+
+```R
+fibonacci <-function(x) {
+  if (0 == x) {
+    0
+  } else {
+    if (1 == x) {
+      1
+    } else {
+      fibonacci(x - 1) + fibonacci(x - 2)
+    }
+  }
+}
+
+fibonacci(55)
+```
+
+... in an [laptop](https://www.samsung.com/hk_en/pc/notebook-2-np270e5j-k01/) like:
+
+- Intel(R) Core(TM) i5-4210U CPU @ 1.70GHz
+- 8GB of RAM:
+  - DDR3
+  - 1600 MT/s
+- 1TB HD:
+  - Timing cached reads:   10046 MB in  1.99 seconds = 5038.70 MB/sec
+  - Timing buffered disk reads: 300 MB in  3.02 seconds =  99.44 MB/sec
+- Manjaro Linux 18.0.4
+- Linux 4.19.56-1-MANJARO
+
+Runs something like:
+
+![fibonnaci](img/logo/fibonnaci.png)
 
 Share your thoughts about this through the [author](#Author) channels of communication.
 
@@ -44,6 +78,8 @@ Share your thoughts about this through the [author](#Author) channels of communi
     - [Podcasts](#Podcasts)
       - [Hipsters](#Hipsters)
     - [Videos](#Videos)
+      - [Logo](#Logo)
+      - [Programming](#Programming)
 
 ## How should it supposed to be
 
@@ -273,7 +309,13 @@ As the idea is to actually leave this repository just for discussions related to
 
 ### Videos
 
+#### Logo
+
 - [Inkscape Tutorial: Abstract Galaxy Logo](https://youtu.be/AgbsozDUyTs)
+- [Inkscape Tutorial: Custom Lettering](https://youtu.be/Xgw01FV7qQI)
+
+#### Programming
+
 - [Lexical Scanning in Go - Rob Pike](https://youtu.be/HxaD_trXwRE)
 - [Sydney Golang Meetup - Rob Pike - Go 2 Draft Specifications](https://youtu.be/RIvL2ONhFBI)
 - [Why Go Is Successful (aka Simplicity is Complicated)](https://youtu.be/k9Zbuuo51go)
