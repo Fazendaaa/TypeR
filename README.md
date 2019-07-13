@@ -75,7 +75,7 @@ Share your thoughts about this through the [author](#Author) channels of communi
   - [Changes from R](#Changes-from-R)
   - [Why](#Why)
     - [Go](#Go)
-      - [And why not use toolings to as Lex and YACC](#And-why-not-use-toolings-to-as-Lex-and-YACC)
+      - [Not use Lex and YACC](#Not-use-Lex-and-YACC)
     - [Functional approach](#Functional-approach)
   - [TODO](#TODO)
     - [Note](#Note)
@@ -252,7 +252,7 @@ The answer is simple, Go is:
 - Its concurrent design helps when writing a compiler
 - ...
 
-#### And why not use toolings to as Lex and YACC
+#### Not use Lex and YACC
 
 As you can see the processing of language grammar was done without the aid of known tools -- such as [Flex](https://en.wikipedia.org/wiki/Flex_lexical_analyser) and [YACC](https://en.wikipedia.org/wiki/Yacc) -- but this was due to the examples given in the material used in the [reference](#Reference); as the idea of this project is, besides making a new language by itself, to aid the learning of compilers; this approach had a more didactic aspect involved in it.
 
@@ -313,6 +313,8 @@ As the idea is to actually leave this repository just for discussions related to
 - [Telegram](https://t.me/farmy)
 
 ## Reference
+
+Before listing anything, a shout out to [coderadio](https://coderadio.freecodecamp.org/)!
 
 ### Articles
 
