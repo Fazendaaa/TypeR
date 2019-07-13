@@ -849,48 +849,68 @@ func TestConditionalIfElseExpressions(t *testing.T) {
 
 // TestFunctionLiteral :
 func TestFunctionLiteral(t *testing.T) {
-	input := `function(x, y) { x + y; }`
-
-	l := lexer.InitializeLexer(input)
-	p := InitializeParser(l)
-	program := p.ParseProgram()
-
-	checkParserErrors(t, p)
-
-	if 1 != len(program.Statements) {
-		t.Fatalf("program.Statements does not contain %d statements, got=%d", 1, len(program.Statements))
+	tests := []struct {
+		input              string
+		expectedParameters []string
+	}{
+		{
+			input: `function(x, y) { x + y; }`,
+			expectedParameters: []string{
+				"x",
+				"y",
+			},
+		},
+		{
+			input: `(x, y) { x + y; }`,
+			expectedParameters: []string{
+				"x",
+				"y",
+			},
+		},
 	}
 
-	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	for _, tt := range tests {
+		l := lexer.InitializeLexer(tt.input)
+		p := InitializeParser(l)
+		program := p.ParseProgram()
 
-	if !ok {
-		t.Fatalf("program.Statement[0] is not ast.ExpressionStatement, got=%T", program.Statements[0])
+		checkParserErrors(t, p)
+
+		if 1 != len(program.Statements) {
+			t.Fatalf("program.Statements does not contain %d statements, got=%d", 1, len(program.Statements))
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("program.Statement[0] is not ast.ExpressionStatement, got=%T", program.Statements[0])
+		}
+
+		function, ok := statement.Expression.(*ast.FunctionLiteral)
+
+		if !ok {
+			t.Fatalf("statement.Expression is not ast.FunctionLiteral, got=%T", statement.Expression)
+		}
+
+		if 2 != len(function.Parameters) {
+			t.Fatalf("function literal parameters wrong, want %d, got=%d", 2, len(function.Parameters))
+		}
+
+		testLiteralExpresion(t, function.Parameters[0], "x")
+		testLiteralExpresion(t, function.Parameters[1], "y")
+
+		if 1 != len(function.Body.Statements) {
+			t.Fatalf("function.Body.Statements has not %d statements, got=%d", 1, len(function.Body.Statements))
+		}
+
+		bodyStatements, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("function body statement is not ast.ExpressionStatement, got=%T", function.Body.Statements[0])
+		}
+
+		testInfixExpression(t, bodyStatements.Expression, "x", "+", "y")
 	}
-
-	function, ok := statement.Expression.(*ast.FunctionLiteral)
-
-	if !ok {
-		t.Fatalf("statement.Expression is not ast.FunctionLiteral, got=%T", statement.Expression)
-	}
-
-	if 2 != len(function.Parameters) {
-		t.Fatalf("function literal parameters wrong, want %d, got=%d", 2, len(function.Parameters))
-	}
-
-	testLiteralExpresion(t, function.Parameters[0], "x")
-	testLiteralExpresion(t, function.Parameters[1], "y")
-
-	if 1 != len(function.Body.Statements) {
-		t.Fatalf("function.Body.Statements has not %d statements, got=%d", 1, len(function.Body.Statements))
-	}
-
-	bodyStatements, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
-
-	if !ok {
-		t.Fatalf("function body statement is not ast.ExpressionStatement, got=%T", function.Body.Statements[0])
-	}
-
-	testInfixExpression(t, bodyStatements.Expression, "x", "+", "y")
 }
 
 // TestFunctionParametersParsing :
