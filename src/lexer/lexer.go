@@ -46,6 +46,18 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
+// goBackChar :
+func (l *Lexer) goBackChar() {
+	if 0 == l.position {
+		l.char = 0
+	} else {
+		l.char = l.input[l.position-1]
+	}
+
+	l.readPosition = l.position
+	l.position--
+}
+
 // readIt :
 func readIt(l *Lexer, isIt func(char byte) bool) string {
 	position := l.position
@@ -189,6 +201,15 @@ func (l *Lexer) NextToken() token.Token {
 	l.readChar()
 
 	return tok
+}
+
+// PreviousToken :
+func (l *Lexer) PreviousToken() token.Token {
+	l.goBackChar()
+	token := l.NextToken()
+	l.goBackChar()
+
+	return token
 }
 
 // InitializeLexer :

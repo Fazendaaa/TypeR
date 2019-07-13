@@ -39,8 +39,9 @@ type Parser struct {
 	l      *lexer.Lexer
 	errors []string
 
-	currentToken token.Token
-	peekToken    token.Token
+	previousToken token.Token
+	currentToken  token.Token
+	peekToken     token.Token
 
 	prefixParserFunction map[token.TokenType]prefixParserFunction
 	infixParserFunction  map[token.TokenType]infixParserFunction
@@ -63,8 +64,16 @@ func (p *Parser) registerInfix(tt token.TokenType, fn infixParserFunction) {
 
 // nextToken :
 func (p *Parser) nextToken() {
+	p.previousToken = p.currentToken
 	p.currentToken = p.peekToken
 	p.peekToken = p.l.NextToken()
+}
+
+// backToken :
+func (p *Parser) backToken() {
+	p.peekToken = p.currentToken
+	p.currentToken = p.previousToken
+	p.previousToken = p.l.PreviousToken()
 }
 
 // currentTokenIs :
@@ -329,9 +338,39 @@ func (p *Parser) parseBoolean() ast.Expression {
 	}
 }
 
+// parseAnonymousFunctionLiteral :
+func (p *Parser) parseAnonymousFunctionLiteral() ast.Expression {
+	function := token.Token{
+		Type:    token.FUNCTION,
+		Literal: "function",
+	}
+	literal := &ast.FunctionLiteral{
+		Token: function,
+	}
+
+	p.backToken()
+	p.previousToken = function
+
+	literal.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LEFT_BRACE) {
+		return nil
+	}
+
+	literal.Body = p.parseBlockStatement()
+
+	return literal
+}
+
 // parseGroupedExpression :
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
+
+	if p.peekTokenIs(token.COMMA) ||
+		p.currentTokenIs(token.RIGHT_PARENTHESIS) ||
+		p.peekTokenIs(token.RIGHT_PARENTHESIS) {
+		return p.parseAnonymousFunctionLiteral()
+	}
 
 	expression := p.parseExpression(LOWEST)
 

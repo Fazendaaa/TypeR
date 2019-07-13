@@ -917,6 +917,24 @@ func TestFunctionParametersParsing(t *testing.T) {
 				"z",
 			},
 		},
+		{
+			input:              "() {};",
+			expectedParameters: []string{},
+		},
+		{
+			input: "(x) {};",
+			expectedParameters: []string{
+				"x",
+			},
+		},
+		{
+			input: "(x, y, z) {};",
+			expectedParameters: []string{
+				"x",
+				"y",
+				"z",
+			},
+		},
 	}
 
 	for _, tt := range tests {
