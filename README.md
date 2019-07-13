@@ -53,7 +53,7 @@ Would result in something like:
 
 To put it in perspective:
 
-![fibonnaci](img/graphs/fibonacci.png)
+![fibonnaci](img/graphs/fibonacci_time.png)
 
 Share your thoughts about this through the [author](#Author) channels of communication.
 
@@ -260,7 +260,7 @@ The choice of just following the functional paradigm is simply a personal decisi
 
 The example example of Fibonacci is due to the fact that functional languages do not recalculate previously calculated values. In the example, the complexity of the code is `O(2^n)`, where n is the number passed to `fibonacci(n)`; In TypeR this complexity is reduced to `O(n)` due to its functional nature. Comparing the two:
 
-[!Fibonacci Big O]()
+![Fibonacci Big O](img/graphs/fibonacci_complexity.png)
 
 Even if it R does not have some of the practicalities of the functional paradigm like guards and pattern matching, it may be possible to emulate such designs later on.
 
