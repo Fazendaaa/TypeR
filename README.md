@@ -31,7 +31,7 @@ fibonacci <-function(x) {
   }
 }
 
-fibonacci(55)
+fibonacci(40)
 ```
 
 ... in an [laptop](https://www.samsung.com/hk_en/pc/notebook-2-np270e5j-k01/) like:
@@ -46,9 +46,14 @@ fibonacci(55)
 - Manjaro Linux 18.0.4
 - Linux 4.19.56-1-MANJARO
 
-Runs something like:
+Would result in something like:
 
-![fibonnaci](img/logo/fibonnaci.png)
+- R: 196,50s user 0,42s system 98% cpu 3:20,80 total
+- TypeR: 0,00s user 0,00s system 100% cpu 0,002 total
+
+To put it in perspective:
+
+![fibonnaci](img/graphs/fibonacci.png)
 
 Share your thoughts about this through the [author](#Author) channels of communication.
 
@@ -64,6 +69,7 @@ Share your thoughts about this through the [author](#Author) channels of communi
     - [Polymorphism](#Polymorphism)
       - [Boundaries](#Boundaries)
     - [Import](#Import)
+    - [Export](#Export)
   - [Changes from R](#Changes-from-R)
   - [Why](#Why)
     - [Go](#Go)
@@ -207,6 +213,14 @@ import mean from base
 import * from graphics
 ```
 
+### Export
+
+Add keywords to export functions automatically:
+
+```TypeR
+export identity <- function(x) x
+```
+
 The idea to use the match operator is only to use it as a trump card when programing, the NAMESPACE file will import only the used functions.
 
 ## Changes from R
@@ -244,11 +258,15 @@ This is not to say that in a future version, either by flexibility or performanc
 
 The choice of just following the functional paradigm is simply a personal decision, since the main use of R for the project author is for mathematical scenarios. Having a background in [Haskell](https://www.haskell.org/), this has greatly influenced prioritizing such a decision.
 
-Even if it does not have some of the practicalities of the functional paradigm like guards and pattern matching, it may be that if it is possible to emulate such designs they are added to the language.
+The example example of Fibonacci is due to the fact that functional languages do not recalculate previously calculated values. In the example, the complexity of the code is `O(2^n)`, where n is the number passed to `fibonacci(n)`; In TypeR this complexity is reduced to `O(n)` due to its functional nature. Comparing the two:
+
+[!Fibonacci Big O]()
+
+Even if it R does not have some of the practicalities of the functional paradigm like guards and pattern matching, it may be possible to emulate such designs later on.
 
 ## TODO
 
-- Right now? Everything, nothing is current working
+- Right now? Almost everything, the current code state just works as a proof of concept
 - Write a draft about the language itself
 - **MAYBE** add a way to link a Stack Overflow link to error messages in the VM -- this is a tip from a friend, thank you Lago
 - Create syntax support to render Markdown files
@@ -272,7 +290,7 @@ Even if it does not have some of the practicalities of the functional paradigm l
 - Help out [Romain](https://community.rstudio.com/t/running-go-code-from-r/2340/3) write a Go to R integration package or even allow such integration into TypeR itself
 - Once the language is stabilized, rewrite the basic packages of R in it and possibly compile them into machine code to gain performance
   - Also seek to see a way to distribute task execution on multiple machines similar to [Elixir's interactive shell.](https://hexdocs.pm/iex/IEx.html)
-  - Dream about ARM and RISC V
+  - Dream about ARM, CUDA and RISC V
 - Much more
 
 These ideas are "more or less" organized in order of priority, even so it was decided not to order them because it will not necessarily be possible to do them in the proposed order.
@@ -280,6 +298,8 @@ These ideas are "more or less" organized in order of priority, even so it was de
 ### Note
 
 It may take years and years for this project to be ready, but I intend to document each step and then release a series of books or blog posts in an easy and accessible way describing the process of implementing everything from the motive of language creation to the its outcome. This is rather a big project and the idea is that it brings good and great changes.
+
+Thanks Ítalo for letting me use his phrase as the language slogan.
 
 ## Author
 
@@ -293,6 +313,7 @@ As the idea is to actually leave this repository just for discussions related to
 ### Articles
 
 - [R Language Definition](https://cran.r-project.org/doc/manuals/r-release/R-lang.html)
+- [Time Complexity Recursive Fibonacci Program](https://www.geeksforgeeks.org/time-complexity-recursive-fibonacci-program/)
 
 ### Books
 

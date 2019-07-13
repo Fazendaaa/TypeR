@@ -28,7 +28,7 @@ fibonacci <-function(x) {
 	}
 }
 
-fibonacci(35)
+fibonacci(40)
 `
 
 func main() {
