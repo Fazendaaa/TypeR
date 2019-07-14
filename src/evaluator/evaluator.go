@@ -374,6 +374,36 @@ func applyFunction(fn object.Object, parameters []object.Object, environment *ob
 	}
 }
 
+// evalPointFreeExpression :
+func evalPointFreeExpression(node *ast.PointFreeExpression, environment *object.Environment) object.Object {
+	parameter := Eval(node.SeedFunction, environment)
+
+	if isError(parameter) {
+		return parameter
+	}
+
+	parameters := make([]object.Object, 1)
+	parameters[0] = parameter
+
+	for index := len(node.ToCompose) - 1; index >= 0; index-- {
+		function := evalIdentifier(node.ToCompose[index], environment)
+
+		if isError(function) {
+			return function
+		}
+
+		parameter = applyFunction(function, parameters, environment)
+
+		if isError(parameter) {
+			return parameter
+		}
+
+		parameters[0] = parameter
+	}
+
+	return parameter
+}
+
 // Eval :
 func Eval(node ast.Node, environment *object.Environment) object.Object {
 	switch node := node.(type) {
@@ -509,6 +539,9 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 		}
 
 		return evalIndexExpression(left, index)
+
+	case *ast.PointFreeExpression:
+		return evalPointFreeExpression(node, environment)
 	}
 
 	return nil

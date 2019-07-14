@@ -153,6 +153,13 @@ type IndexExpression struct {
 	Index Expression
 }
 
+// PointFreeExpression :
+type PointFreeExpression struct {
+	Token        token.Token
+	ToCompose    []*Identifier
+	SeedFunction Expression
+}
+
 // statementNode :
 func (i *Identifier) statementNode() {}
 
@@ -247,9 +254,6 @@ func (rs *ReturnStatement) String() string {
 	if nil != rs.ReturnValue {
 		out.WriteString(rs.ReturnValue.String())
 	}
-
-	// Optional
-	// out.WriteString(";")
 
 	return out.String()
 }
@@ -503,6 +507,31 @@ func (ie *IndexExpression) String() string {
 	out.WriteString("[")
 	out.WriteString(ie.Index.String())
 	out.WriteString("])")
+
+	return out.String()
+}
+
+// expressionNode :
+func (pf *PointFreeExpression) expressionNode() {}
+
+// TokenLiteral :
+func (pf *PointFreeExpression) TokenLiteral() string {
+	return pf.Token.Literal
+}
+
+// String :
+func (pf *PointFreeExpression) String() string {
+	var out bytes.Buffer
+
+	functions := []string{}
+
+	for _, function := range pf.ToCompose {
+		functions = append(functions, function.String())
+	}
+
+	out.WriteString(strings.Join(functions, " . "))
+	out.WriteString(" . ")
+	out.WriteString(pf.SeedFunction.String())
 
 	return out.String()
 }

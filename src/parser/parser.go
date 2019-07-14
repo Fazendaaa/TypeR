@@ -108,6 +108,19 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	return false
 }
 
+// expectCurrent :
+func (p *Parser) expectCurrent(t token.TokenType) bool {
+	if p.currentTokenIs(t) {
+		p.nextToken()
+
+		return true
+	}
+
+	p.currentErrors(t)
+
+	return false
+}
+
 // parseExpressionStatement :
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	statement := &ast.ExpressionStatement{
@@ -209,8 +222,59 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return statement
 }
 
+// parsePointFreeLiteral :
+func (p *Parser) parsePointFreeLiteral() ast.Expression {
+	pointFree := &ast.PointFreeExpression{
+		Token: token.Token{
+			Type:    token.POINT,
+			Literal: ".",
+		},
+	}
+	function := &ast.Identifier{
+		Token: p.currentToken,
+		Value: p.currentToken.Literal,
+	}
+
+	toCompose := []*ast.Identifier{}
+	toCompose = append(toCompose, function)
+
+	p.nextToken()
+
+	for p.currentTokenIs(token.POINT) && !p.currentTokenIs(token.EOF) {
+		p.nextToken()
+
+		function = &ast.Identifier{
+			Token: p.currentToken,
+			Value: p.currentToken.Literal,
+		}
+		toCompose = append(toCompose, function)
+
+		p.nextToken()
+	}
+
+	pointFree.ToCompose = toCompose
+
+	if !p.expectCurrent(token.LEFT_PARENTHESIS) {
+		return nil
+	}
+
+	// Remove last function read from compose as it will be the first function
+	// to be called, the "seed function"
+	pointFree.ToCompose = pointFree.ToCompose[:len(pointFree.ToCompose)-1]
+
+	p.backToken()
+
+	pointFree.SeedFunction = p.parseCallExpression(function)
+
+	return pointFree
+}
+
 // parseIdentifier :
 func (p *Parser) parseIdentifier() ast.Expression {
+	if p.peekTokenIs(token.POINT) {
+		return p.parsePointFreeLiteral()
+	}
+
 	return &ast.Identifier{
 		Token: p.currentToken,
 		Value: p.currentToken.Literal,
@@ -613,6 +677,12 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 // peekErrors :
 func (p *Parser) peekErrors(t token.TokenType) {
 	message := fmt.Sprintf("Expected next token to be %s, got '%s' instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, message)
+}
+
+// currentErrors :
+func (p *Parser) currentErrors(t token.TokenType) {
+	message := fmt.Sprintf("Expected current token to be %s, got '%s' instead", t, p.currentToken.Type)
 	p.errors = append(p.errors, message)
 }
 

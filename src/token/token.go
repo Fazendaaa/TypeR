@@ -13,11 +13,13 @@ const (
 	EOF     = "EOF"
 	ILLEGAL = "ILLEGAL"
 
-	INT        = "INT"
-	DOUBLE     = "DOUBLE"
-	STRING     = "STRING"
+	INT    = "INT"
+	DOUBLE = "DOUBLE"
+	STRING = "STRING"
+
 	IDENTIFIER = "IDENTIFIER"
 
+	EXPORT   = "EXPORT"
 	LET      = "LET"
 	FUNCTION = "FUNCTION"
 	TRUE     = "TRUE"
@@ -26,6 +28,7 @@ const (
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
 
+	POINT              = "."
 	BANG               = "!"
 	EQUAL              = "="
 	PLUS               = "+"

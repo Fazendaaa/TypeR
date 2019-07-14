@@ -1220,3 +1220,64 @@ func TestConstFunctionLiteralWithName(t *testing.T) {
 		}
 	}
 }
+
+// TestPointFreeNotation :
+func TestPointFreeNotation(t *testing.T) {
+	input := `third . second . first(x + 1, y, z)`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements, got=%d\n", 1, len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ast.ExpressionStatement, got=%T", program.Statements[0])
+	}
+
+	pointFree, ok := statement.Expression.(*ast.PointFreeExpression)
+
+	if !ok {
+		t.Fatalf("statement.Expression is not an ast.PointFreeExpression, got=%T", statement.Expression)
+	}
+
+	seedFunction, ok := pointFree.SeedFunction.(*ast.CallExpression)
+
+	if !ok {
+		t.Fatalf("statement.Expression is not an ast.CallExpression, got=%T", pointFree.SeedFunction)
+	}
+
+	if !testIdentifier(t, seedFunction.Function, "first") {
+		return
+	}
+
+	if 3 != len(seedFunction.Parameters) {
+		t.Fatalf("wrong length of arguments, got=%d", len(seedFunction.Parameters))
+	}
+
+	testInfixExpression(t, seedFunction.Parameters[0], "x", "+", 1)
+	testLiteralExpresion(t, seedFunction.Parameters[1], "y")
+	testLiteralExpresion(t, seedFunction.Parameters[2], "z")
+
+	if 2 != len(pointFree.ToCompose) {
+		t.Fatalf("wrong length of ToCompose functions, got=%d", len(pointFree.ToCompose))
+	}
+
+	if !testIdentifier(t, pointFree.ToCompose[0], "third") {
+		t.Fatalf("pointFree.ToCompose[0] is different than '%s', got=%s", "myArray", pointFree.ToCompose[0])
+
+		return
+	}
+
+	if !testIdentifier(t, pointFree.ToCompose[1], "second") {
+		t.Fatalf("pointFree.ToCompose[1] is different than '%s', got=%s", "myArray", pointFree.ToCompose[1])
+
+		return
+	}
+}

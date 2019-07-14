@@ -13,7 +13,7 @@ import (
 )
 
 // PROMPT :
-const PROMPT = ">> "
+const PROMPT = "λ "
 
 // printParseErrors :
 func printParseErrors(out io.Writer, errors []string) {

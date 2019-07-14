@@ -769,3 +769,36 @@ func TestArrayIndexExpressions(t *testing.T) {
 
 	}
 }
+
+// TestPointFree :
+func TestPointFree(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{
+			input: `
+				identity <- (x) x
+				power <- (x) x * x
+				add <- (x, y) x + y
+			
+				identity . power . add (1 + 1, 5 - 3)
+			`,
+			expected: 16,
+		},
+		{
+			input: `
+				power <- (x) x * x
+				add <- (x, y) x + y
+				divideByTwo <- (x) x / 2
+			
+				divideByTwo . power . add (1 + 1, 5 - 3)
+			`,
+			expected: 8,
+		},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}

@@ -63,10 +63,10 @@ Share your thoughts about this through the [author](#Author) channels of communi
     - [Functions](#Functions)
     - [Constants](#Constants)
     - [Variables](#Variables)
+    - [Point free notation](#Point-free-notation)
   - [How should it supposed to be](#How-should-it-supposed-to-be)
     - [Functions Headers](#Functions-Headers)
       - [Throw notation](#Throw-notation)
-    - [Point free notation](#Point-free-notation)
     - [Prefix operations](#Prefix-operations)
     - [Polymorphism](#Polymorphism)
       - [Boundaries](#Boundaries)
@@ -80,7 +80,8 @@ Share your thoughts about this through the [author](#Author) channels of communi
   - [TODO](#TODO)
     - [Note](#Note)
   - [Author](#Author)
-  - [Reference](#Reference)
+  - [Sources](#Sources)
+    - [References](#References)
     - [Articles](#Articles)
     - [Books](#Books)
     - [Podcasts](#Podcasts)
@@ -127,6 +128,17 @@ result <- 4
 # result is 4
 ```
 
+### Point free notation
+
+```TypeR
+square <- (x) x ^ 2
+
+addTwo <- (x) x + 2
+
+result <- addTwo . square 2
+# result is 6
+```
+
 ## How should it supposed to be
 
 A small example of how language it's supposed to be one day.
@@ -154,17 +166,6 @@ If a function throws an error or a warning, the caller has to know that without 
 ```TypeR
 isURLValid("www.google.com")
 # isURLValid := String -> Bool; throws error, warning
-```
-
-### Point free notation
-
-```TypeR
-square <- (x) x ^ 2
-
-addTwo <- (x) x + 2
-
-result <- addTwo . square 2
-# result is 6
 ```
 
 ### Prefix operations
@@ -285,6 +286,7 @@ Even if it R does not have some of the practicalities of the functional paradigm
     - Linter -- [TRLint](https://github.com/Fazendaaa/TRLint-VSCode)
     - Debuger
     - Testing
+    - Code runner -- something like [Quokka](https://quokkajs.com/)
   - Create some new tooling like [Monkey Type](https://github.com/instagram/MonkeyType) to migrate R code to TypeR as it is run:
     - That being said, improve this idea by build something "like it" which builds tests cases through the run of the code just so the user approve them later on whether they are consistent or not
   - **MAYBE** a docs package -- [ROxygen](https://klutometis.github.io/roxygen/) is too good to be ignored, that's why this idea is not really a priority:
@@ -312,14 +314,18 @@ As the idea is to actually leave this repository just for discussions related to
 - [Twitter](https://twitter.com/the_fznd)
 - [Telegram](https://t.me/farmy)
 
-## Reference
+## Sources
 
 Before listing anything, a shout out to [coderadio](https://coderadio.freecodecamp.org/)!
 
-### Articles
+### References
 
 - [R Language Definition](https://cran.r-project.org/doc/manuals/r-release/R-lang.html)
+
+### Articles
+
 - [Time Complexity Recursive Fibonacci Program](https://www.geeksforgeeks.org/time-complexity-recursive-fibonacci-program/)
+- [What to Know Before Debating Type Systems](http://blog.steveklabnik.com/posts/2010-07-17-what-to-know-before-debating-type-systems)
 
 ### Books
 
