@@ -352,11 +352,6 @@ func (p *Parser) parseAnonymousFunctionLiteral() ast.Expression {
 	p.previousToken = function
 
 	literal.Parameters = p.parseFunctionParameters()
-
-	if !p.expectPeek(token.LEFT_BRACE) {
-		return nil
-	}
-
 	literal.Body = p.parseBlockStatement()
 
 	return literal
@@ -381,8 +376,8 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	return expression
 }
 
-// parseBlockStatement :
-func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+// parseMultipleLinesBlockStatement :
+func (p *Parser) parseMultipleLinesBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{
 		Token: p.currentToken,
 	}
@@ -403,6 +398,34 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+// parseOneLinersBlockStatement :
+func (p *Parser) parseOneLinersBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{
+		Token: token.Token{
+			Type:    token.LEFT_BRACE,
+			Literal: "{",
+		},
+	}
+	block.Statements = []ast.Statement{}
+
+	statement := p.parseStatement()
+
+	block.Statements = append(block.Statements, statement)
+
+	return block
+}
+
+// parseBlockStatement :
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	p.nextToken()
+
+	if p.currentTokenIs(token.LEFT_BRACE) {
+		return p.parseMultipleLinesBlockStatement()
+	}
+
+	return p.parseOneLinersBlockStatement()
+}
+
 // parseConditionalExpression :
 func (p *Parser) parseConditionalExpression() ast.Expression {
 	expression := &ast.ConditionalExpression{
@@ -421,19 +444,10 @@ func (p *Parser) parseConditionalExpression() ast.Expression {
 		return nil
 	}
 
-	// This might not be true in one statement blocks
-	if !p.expectPeek(token.LEFT_BRACE) {
-		return nil
-	}
-
 	expression.Consequence = p.parseBlockStatement()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
-
-		if !p.expectPeek(token.LEFT_BRACE) {
-			return nil
-		}
 
 		expression.Alternative = p.parseBlockStatement()
 	}
@@ -488,11 +502,6 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	literal.Parameters = p.parseFunctionParameters()
-
-	if !p.expectPeek(token.LEFT_BRACE) {
-		return nil
-	}
-
 	literal.Body = p.parseBlockStatement()
 
 	return literal
