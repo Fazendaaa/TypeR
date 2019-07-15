@@ -131,7 +131,7 @@ result <- 4
 ### Point free notation
 
 ```TypeR
-square <- (x) x ^ 2
+square <- (x) x * x
 
 addTwo <- (x) x + 2
 
