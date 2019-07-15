@@ -135,7 +135,7 @@ square <- (x) x * x
 
 addTwo <- (x) x + 2
 
-result <- addTwo . square 2
+result <- addTwo . square(2)
 # result is 6
 ```
 
