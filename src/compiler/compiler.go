@@ -476,6 +476,27 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		c.emit(code.OpCall, len(node.Parameters))
 
+	case *ast.PointFreeExpression:
+		parameters := make([]ast.Expression, 1)
+
+		for _, function := range node.ToCompose {
+			callExpression := &ast.CallExpression{
+				Function:   function,
+				Parameters: parameters,
+			}
+
+			err := c.Compile(callExpression)
+
+			if nil != err {
+				return err
+			}
+		}
+
+		parameter := c.Compile(node.SeedFunction)
+
+		if nil != parameter {
+			return parameter
+		}
 	}
 
 	return nil
