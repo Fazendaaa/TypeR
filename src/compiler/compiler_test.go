@@ -1469,3 +1469,51 @@ func TestPointFree(t *testing.T) {
 
 	runCompilerTests(t, tests)
 }
+
+// TestHighOrderCall :
+func TestHighOrderCall(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				foo <- (x) x(1)
+
+				foo((y) y + 2)
+			`,
+			expectedConstants: []interface{}{
+				1,
+				[]code.Instructions{
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 0),
+					code.Make(code.OpCall, 1),
+					code.Make(code.OpReturnValue),
+				},
+				1,
+				[]code.Instructions{
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 2),
+					code.Make(code.OpCall, 1),
+					code.Make(code.OpReturnValue),
+				},
+				2,
+				[]code.Instructions{
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpConstant, 4),
+					code.Make(code.OpAdd),
+					code.Make(code.OpReturnValue),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpClosure, 1, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpClosure, 3, 0),
+				code.Make(code.OpSetLocal, 0),
+				code.Make(code.OpGetGlobal, 0),
+				code.Make(code.OpClosure, 5),
+				code.Make(code.OpCall, 1),
+				code.Make(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
