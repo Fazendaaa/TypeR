@@ -73,6 +73,7 @@ Share your thoughts about this through the [author](#Author) channels of communi
     - [Import](#Import)
     - [Export](#Export)
   - [Changes from R](#Changes-from-R)
+  - [Installing](#Installing)
   - [Why](#Why)
     - [Go](#Go)
       - [Not use Lex and YACC](#Not-use-Lex-and-YACC)
@@ -235,6 +236,24 @@ The idea to use the match operator is only to use it as a trump card when progra
 - Changing the `[[ ]]` operator to `[ ]`;
 - Changing the `[x, y]` operator to `[x][y]`;
 - ...
+
+## Installing
+
+To play around with the language REPL. you will need a [Go](https://golang.org/) compiler, then just clone this repository. In the repository root, run:
+
+```shell
+go run src/main.go
+```
+
+A prompt like the following should appear:
+
+```shell
+Hello farm! This is TypeR programming language!
+Fell free to type in commands
+λ _
+```
+
+Particularly I would not recommend doing this so as not to get frustrated since everything is just a rough draft.
 
 ## Why
 
