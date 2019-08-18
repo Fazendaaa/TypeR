@@ -155,9 +155,9 @@ type IndexExpression struct {
 
 // PointFreeExpression :
 type PointFreeExpression struct {
-	Token        token.Token
-	ToCompose    []*Identifier
-	SeedFunction Expression
+	Token      token.Token
+	ToCompose  []*Identifier
+	Parameters []Expression
 }
 
 // statementNode :
@@ -524,14 +524,20 @@ func (pf *PointFreeExpression) String() string {
 	var out bytes.Buffer
 
 	functions := []string{}
+	parameters := []string{}
 
 	for _, function := range pf.ToCompose {
 		functions = append(functions, function.String())
 	}
 
+	for _, parameter := range pf.Parameters {
+		parameters = append(parameters, parameter.String())
+	}
+
 	out.WriteString(strings.Join(functions, " . "))
-	out.WriteString(" . ")
-	out.WriteString(pf.SeedFunction.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(functions, " , "))
+	out.WriteString(")")
 
 	return out.String()
 }

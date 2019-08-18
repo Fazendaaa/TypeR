@@ -23,7 +23,7 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	result, ok := obj.(*object.Integer)
 
 	if !ok {
-		t.Errorf("object is not Ingeter, got=%T (%+v)", obj, obj)
+		t.Errorf("object is not Integer, got=%T (%+v)", obj, obj)
 
 		return false
 	}
@@ -776,23 +776,33 @@ func TestPointFree(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{
-			input: `
-				identity <- (x) x
-				power <- (x) x * x
-				add <- (x, y) x + y
-			
-				identity . power . add (1 + 1, 5 - 3)
-			`,
-			expected: 16,
-		},
+		// {
+		// 	input: `
+		// 		identity <- (x) x
+		// 		power <- (x) x * x
+		// 		add <- (x, y) x + y
+
+		// 		identity . power . add (1 + 1, 5 - 3)
+		// 	`,
+		// 	expected: 16,
+		// },
+		// {
+		// 	input: `
+		// 		power <- (x) x * x
+		// 		add <- (x, y) x + y
+		// 		divideByTwo <- (x) x / 2
+
+		// 		divideByTwo . power . add (1 + 1, 5 - 3)
+		// 	`,
+		// 	expected: 8,
+		// },
 		{
 			input: `
 				power <- (x) x * x
 				add <- (x, y) x + y
 				divideByTwo <- (x) x / 2
-			
-				divideByTwo . power . add (1 + 1, 5 - 3)
+				partial <- divideByTwo . power
+				result <- partial . add (1 + 1, 5 - 3)
 			`,
 			expected: 8,
 		},

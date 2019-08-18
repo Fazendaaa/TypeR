@@ -1247,23 +1247,13 @@ func TestPointFreeNotation(t *testing.T) {
 		t.Fatalf("statement.Expression is not an ast.PointFreeExpression, got=%T", statement.Expression)
 	}
 
-	seedFunction, ok := pointFree.SeedFunction.(*ast.CallExpression)
-
-	if !ok {
-		t.Fatalf("statement.Expression is not an ast.CallExpression, got=%T", pointFree.SeedFunction)
+	if 3 != len(pointFree.Parameters) {
+		t.Fatalf("wrong length of arguments, got=%d", len(pointFree.Parameters))
 	}
 
-	if !testIdentifier(t, seedFunction.Function, "first") {
-		return
-	}
-
-	if 3 != len(seedFunction.Parameters) {
-		t.Fatalf("wrong length of arguments, got=%d", len(seedFunction.Parameters))
-	}
-
-	testInfixExpression(t, seedFunction.Parameters[0], "x", "+", 1)
-	testLiteralExpresion(t, seedFunction.Parameters[1], "y")
-	testLiteralExpresion(t, seedFunction.Parameters[2], "z")
+	testInfixExpression(t, pointFree.Parameters[0], "x", "+", 1)
+	testLiteralExpresion(t, pointFree.Parameters[1], "y")
+	testLiteralExpresion(t, pointFree.Parameters[2], "z")
 
 	if 2 != len(pointFree.ToCompose) {
 		t.Fatalf("wrong length of ToCompose functions, got=%d", len(pointFree.ToCompose))
@@ -1280,4 +1270,55 @@ func TestPointFreeNotation(t *testing.T) {
 
 		return
 	}
+}
+
+// TestPointFreeNotationPartialApplication :
+func TestPointFreeNotationPartialApplication(t *testing.T) {
+	input := `partial <- third . second`
+
+	l := lexer.InitializeLexer(input)
+	p := InitializeParser(l)
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program.Statements does not contain %d statements, got=%d\n", 2, len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.ConstStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ast.ConstStatement, got=%T", program.Statements[0])
+	}
+
+	identifier, ok := statement.Value.(*ast.Identifier)
+
+	if !ok {
+		t.Fatalf("statement.Value is not an ast.Identifier, got=%T", statement.Value)
+	}
+
+	println("identifier.Value: ", identifier.Value)
+
+	// pointFree, ok := identifier.Value
+
+	// if !ok {
+	// 	t.Fatalf("pointFree.SeedFunction is not undefined, got=%T", pointFree.SeedFunction)
+	// }
+
+	// if 2 != len(pointFree.ToCompose) {
+	// 	t.Fatalf("wrong length of ToCompose functions, got=%d", len(pointFree.ToCompose))
+	// }
+
+	// if !testIdentifier(t, pointFree.ToCompose[0], "third") {
+	// 	t.Fatalf("pointFree.ToCompose[0] is different than '%s', got=%s", "myArray", pointFree.ToCompose[0])
+
+	// 	return
+	// }
+
+	// if !testIdentifier(t, pointFree.ToCompose[1], "second") {
+	// 	t.Fatalf("pointFree.ToCompose[1] is different than '%s', got=%s", "myArray", pointFree.ToCompose[1])
+
+	// 	return
+	// }
 }

@@ -27,6 +27,7 @@ const (
 	ARRAY_OBJECT             = "ARRAY"
 	COMPILED_FUNCTION_OBJECT = "COMPILED_FUNCTION_OBJECT"
 	CLOSURE_OBJECT           = "CLOSURE_OBJECT"
+	POINT_FREE_OBJECT        = "POINT_FREE_OBJECT"
 )
 
 // Object :
@@ -92,6 +93,11 @@ type CompiledFunction struct {
 type Closure struct {
 	Fn            *CompiledFunction
 	FreeVariables []Object
+}
+
+// PointFree :
+type PointFree struct {
+	Functions []Object
 }
 
 // Inspect :
@@ -238,4 +244,14 @@ func (c *Closure) Type() ObjectType {
 // Inspect :
 func (c *Closure) Inspect() string {
 	return fmt.Sprintf("Closure[%p]", c)
+}
+
+// Type :
+func (pf *PointFree) Type() ObjectType {
+	return POINT_FREE_OBJECT
+}
+
+// Inspect :
+func (pf *PointFree) Inspect() string {
+	return fmt.Sprintf("Point Free[%p]", pf)
 }

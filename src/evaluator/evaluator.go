@@ -28,6 +28,17 @@ func isError(obj object.Object) bool {
 	return false
 }
 
+// isFunction :
+func isFunction(obj object.Object) bool {
+	if nil != obj {
+		return object.BUILTIN_OBJECT == obj.Type() ||
+			object.FUNCTION_OBJECT == obj.Type() ||
+			object.POINT_FREE_OBJECT == obj.Type()
+	}
+
+	return false
+}
+
 // newError :
 func newError(format string, a ...interface{}) *object.Error {
 	return &object.Error{
@@ -374,9 +385,22 @@ func applyFunction(fn object.Object, parameters []object.Object, environment *ob
 	}
 }
 
-// evalPointFreeExpression :
-func evalPointFreeExpression(node *ast.PointFreeExpression, environment *object.Environment) object.Object {
-	parameter := Eval(node.SeedFunction, environment)
+// applyPartialPointFree :
+func applyPartialPointFree(pf *object.PointFree, parameters []object.Object, environment *object.Environment) object.Object {
+	for index := len(pf.Functions) - 1; index >= 0; index-- {
+		parameters[0] = applyFunction(pf.Functions[index], parameters, environment)
+
+		if isError(parameters[0]) {
+			return parameters[0]
+		}
+	}
+
+	return parameters[0]
+}
+
+// applyPointFree :
+func applyPointFree(pf *ast.PointFreeExpression, environment *object.Environment) object.Object {
+	parameter := Eval(pf.SeedFunction, environment)
 
 	if isError(parameter) {
 		return parameter
@@ -385,14 +409,23 @@ func evalPointFreeExpression(node *ast.PointFreeExpression, environment *object.
 	parameters := make([]object.Object, 1)
 	parameters[0] = parameter
 
-	for index := len(node.ToCompose) - 1; index >= 0; index-- {
-		function := evalIdentifier(node.ToCompose[index], environment)
+	for index := len(pf.ToCompose) - 1; index >= 0; index-- {
+		function := evalIdentifier(pf.ToCompose[index], environment)
 
 		if isError(function) {
 			return function
 		}
 
-		parameter = applyFunction(function, parameters, environment)
+		if !isFunction(function) {
+			return newError("%s is not a function, got=%s", function.Inspect(), function.Type())
+		}
+
+		switch kind := function.(type) {
+		case *object.PointFree:
+			parameter = applyPartialPointFree(kind, parameters, environment)
+		default:
+			parameter = applyFunction(kind, parameters, environment)
+		}
 
 		if isError(parameter) {
 			return parameter
@@ -402,6 +435,38 @@ func evalPointFreeExpression(node *ast.PointFreeExpression, environment *object.
 	}
 
 	return parameter
+}
+
+// evalPartialPointFreeExpression :
+func evalPartialPointFreeExpression(pf *ast.PointFreeExpression, environment *object.Environment) object.Object {
+	functions := make([]object.Object, len(pf.ToCompose))
+
+	for index := len(pf.ToCompose) - 1; index >= 0; index-- {
+		function := evalIdentifier(pf.ToCompose[index], environment)
+
+		if isError(function) {
+			return function
+		}
+
+		if !isFunction(function) {
+			return newError("%s is not a function, got=%s", function.Inspect(), function.Type())
+		}
+
+		functions[index] = function
+	}
+
+	return &object.PointFree{
+		Functions: functions,
+	}
+}
+
+// evalPointFreeExpression :
+func evalPointFreeExpression(pf *ast.PointFreeExpression, environment *object.Environment) object.Object {
+	if nil != pf.SeedFunction {
+		return applyPointFree(pf, environment)
+	}
+
+	return evalPartialPointFreeExpression(pf, environment)
 }
 
 // Eval :
@@ -542,6 +607,7 @@ func Eval(node ast.Node, environment *object.Environment) object.Object {
 
 	case *ast.PointFreeExpression:
 		return evalPointFreeExpression(node, environment)
+
 	}
 
 	return nil

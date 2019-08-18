@@ -21,6 +21,7 @@ const (
 
 	EXPORT   = "EXPORT"
 	LET      = "LET"
+	CONST    = "CONST"
 	FUNCTION = "FUNCTION"
 	TRUE     = "TRUE"
 	FALSE    = "FALSE"

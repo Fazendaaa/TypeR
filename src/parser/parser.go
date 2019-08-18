@@ -172,16 +172,15 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 // parseConstStatement :
 func (p *Parser) parseConstStatement() *ast.ConstStatement {
+	constant := token.Token{
+		Type:    token.CONST,
+		Literal: "CONST",
+	}
 	statement := &ast.ConstStatement{
-		Token: p.currentToken,
+		Token: constant,
 	}
-
-	if !p.currentTokenIs(token.IDENTIFIER) {
-		return nil
-	}
-
 	statement.Name = &ast.Identifier{
-		Token: p.currentToken,
+		Token: constant,
 		Value: p.currentToken.Literal,
 	}
 
@@ -238,8 +237,6 @@ func (p *Parser) parsePointFreeLiteral() ast.Expression {
 	toCompose := []*ast.Identifier{}
 	toCompose = append(toCompose, function)
 
-	p.nextToken()
-
 	for p.currentTokenIs(token.POINT) && !p.currentTokenIs(token.EOF) {
 		p.nextToken()
 
@@ -254,17 +251,11 @@ func (p *Parser) parsePointFreeLiteral() ast.Expression {
 
 	pointFree.ToCompose = toCompose
 
-	if !p.expectCurrent(token.LEFT_PARENTHESIS) {
-		return nil
+	if p.currentTokenIs(token.LEFT_PARENTHESIS) {
+		pointFree.Parameters = p.parseExpressionList(token.RIGHT_PARENTHESIS)
 	}
 
-	// Remove last function read from compose as it will be the first function
-	// to be called, the "seed function"
-	pointFree.ToCompose = pointFree.ToCompose[:len(pointFree.ToCompose)-1]
-
-	p.backToken()
-
-	pointFree.SeedFunction = p.parseCallExpression(function)
+	// println(pointFree.String())
 
 	return pointFree
 }
@@ -734,6 +725,7 @@ func InitializeParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.LEFT_BRACKET, p.parseArrayLiteral)
+	p.registerPrefix(token.POINT, p.parsePointFreeLiteral)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
