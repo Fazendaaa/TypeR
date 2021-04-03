@@ -55,41 +55,62 @@ To put it in perspective:
 
 ![fibonnaci](img/graphs/fibonacci_time.png)
 
+To use it just add the following line to your terminal:
+
+```shell
+alias TypeR='docker run --rm -it --env USER=${USER} fazenda/typer'
+```
+
+Then type:
+
+```shell
+$ TypeR
+Unable to find image 'fazenda/typer:latest' locally
+latest: Pulling from fazenda/typer
+Digest: sha256:39b84a4f6dd133e2a19f91900cb481e380d22d1004cbb5269bd8cef4f8ffbd02
+Status: Downloaded newer image for fazenda/typer:latest
+Hello farm! This is TypeR programming language!
+Fell free to type in commands
+λ
+```
+
+To kill the session, just `Ctrl` + `d`
+
 Share your thoughts about this through the [author](#Author) channels of communication.
 
-- [TypeR](#TypeR)
-  - [Introduction](#Introduction)
-  - [Current working](#Current-working)
-    - [Functions](#Functions)
-    - [Constants](#Constants)
-    - [Variables](#Variables)
-    - [Point free notation](#Point-free-notation)
-  - [How should it supposed to be](#How-should-it-supposed-to-be)
-    - [Functions Headers](#Functions-Headers)
-      - [Throw notation](#Throw-notation)
-    - [Prefix operations](#Prefix-operations)
-    - [Polymorphism](#Polymorphism)
-      - [Boundaries](#Boundaries)
-    - [Import](#Import)
-    - [Export](#Export)
-  - [Changes from R](#Changes-from-R)
-  - [Installing](#Installing)
-  - [Why](#Why)
-    - [Go](#Go)
-      - [Not use Lex and YACC](#Not-use-Lex-and-YACC)
-    - [Functional approach](#Functional-approach)
-  - [TODO](#TODO)
-    - [Note](#Note)
-  - [Author](#Author)
-  - [Sources](#Sources)
-    - [References](#References)
-    - [Articles](#Articles)
-    - [Books](#Books)
-    - [Podcasts](#Podcasts)
-      - [Hipsters](#Hipsters)
-    - [Videos](#Videos)
-      - [Logo](#Logo)
-      - [Programming](#Programming)
+- [TypeR](#typer)
+  - [Introduction](#introduction)
+  - [Current working](#current-working)
+    - [Functions](#functions)
+    - [Constants](#constants)
+    - [Variables](#variables)
+    - [Point free notation](#point-free-notation)
+  - [How should it supposed to be](#how-should-it-supposed-to-be)
+    - [Functions Headers](#functions-headers)
+      - [Throw notation](#throw-notation)
+    - [Prefix operations](#prefix-operations)
+    - [Polymorphism](#polymorphism)
+      - [Boundaries](#boundaries)
+    - [Import](#import)
+    - [Export](#export)
+  - [Changes from R](#changes-from-r)
+  - [Installing](#installing)
+  - [Why](#why)
+    - [Go](#go)
+      - [Not use Lex and YACC](#not-use-lex-and-yacc)
+    - [Functional approach](#functional-approach)
+  - [TODO](#todo)
+    - [Note](#note)
+  - [Author](#author)
+  - [Sources](#sources)
+    - [References](#references)
+    - [Articles](#articles)
+    - [Books](#books)
+    - [Podcasts](#podcasts)
+      - [Hipsters](#hipsters)
+    - [Videos](#videos)
+      - [Logo](#logo)
+      - [Programming](#programming)
 
 ## Current working
 
@@ -208,6 +229,16 @@ normalizeDistribution <- (set, level) {
 ```
 
 Under the hood this means that if these conditions were not followed during the program being run, an error would be given. The idea of this proposal is to clear the code of treatments that the programmer has to do and to be able to reuse those definitions through the code.
+
+One of the cool things to do also would be to add a `Set` type to if, which means that even tho it could be like an array or even a vector the following can be implemented:
+
+```TypeR
+sum <- ([]) 0
+sum <- (x : xs) x + sum(xs)
+
+sum(c(1, 2, 3, 4)) # calculates then return 5
+sum(c(1, 2, 4, 3)) # returns 5 without whitout calculating
+```
 
 ### Import
 

@@ -489,11 +489,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 
-		err := c.Compile(node.SeedFunction)
+		//err := c.Compile(node.SeedFunction)
 
-		if nil != err {
-			return err
-		}
+		//if nil != err {
+		//	return err
+		//}
 
 		for range node.ToCompose {
 			c.emit(code.OpCall, 1)
