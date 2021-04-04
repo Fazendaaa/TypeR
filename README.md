@@ -93,6 +93,9 @@ Share your thoughts about this through the [author](#Author) channels of communi
       - [Boundaries](#boundaries)
     - [Import](#import)
     - [Export](#export)
+    - [Code Analysis](#code-analysis)
+      - [Profiling test based](#profiling-test-based)
+      - [Code orthogonalithy](#code-orthogonalithy)
   - [Changes from R](#changes-from-r)
   - [Installing](#installing)
   - [Why](#why)
@@ -259,6 +262,16 @@ export identity <- (x) x
 ```
 
 The idea to use the match operator is only to use it as a trump card when programing, the NAMESPACE file will import only the used functions.
+
+### Code Analysis
+
+#### Profiling test based
+
+Support automatic profiling base in tests cases -- I've done something just like it in the company that I workfor -- and generates a doc showing properties based in [Amdahl](https://en.wikipedia.org/wiki/Amdahl%27s_law)'s and [Gustafson](https://en.wikipedia.org/wiki/Gustafson%27s_law)'s Laws. This will help the developer make an informed decision whether or not to look into optimization and how to do so, which scenarios will give the best performance for the buck and which the [law of diminishing](https://en.wikipedia.org/wiki/Diminishing_returns) returns starts.
+
+#### Code orthogonalithy
+
+[Code Orthogonalithy](https://en.wikipedia.org/wiki/Orthogonality_(programming)) is not a concept that has many tools to detect and help the developer to fix it when needed. Due to the low overhead that functional programing has to it, maybe a tool that makes an anlysis on those edge cases might help even further.
 
 ## Changes from R
 
