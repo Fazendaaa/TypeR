@@ -361,6 +361,7 @@ Even if it R does not have some of the practicalities of the functional paradigm
   - Also seek to see a way to distribute task execution on multiple machines similar to [Elixir's interactive shell.](https://hexdocs.pm/iex/IEx.html)
   - Dream about ARM, CUDA and RISC V
 - Much more
+- Add support to use DPUs, GPUs and CPUs as a distribuited cache option that handle resources where they are available due to new CLRX standard
 
 These ideas are "more or less" organized in order of priority, even so it was decided not to order them because it will not necessarily be possible to do them in the proposed order.
 
@@ -389,6 +390,7 @@ Before listing anything, a shout out to [coderadio](https://coderadio.freecodeca
 
 - [Time Complexity Recursive Fibonacci Program](https://www.geeksforgeeks.org/time-complexity-recursive-fibonacci-program/)
 - [What to Know Before Debating Type Systems](http://blog.steveklabnik.com/posts/2010-07-17-what-to-know-before-debating-type-systems)
+- [Integration Testing in Go: Part I - Executing Tests with Docker](https://www.ardanlabs.com/blog/2019/03/integration-testing-in-go-executing-tests-with-docker.html)
 
 ### Books
 
